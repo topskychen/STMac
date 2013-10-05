@@ -34,9 +34,9 @@ public class PrimeMatrix {
 		for (int i = 0; i < MVALUE; i++) {
 			for (int j = 0; j < CVALUE; j++) {
 				primeMatrix[i][j] = BigInteger.probablePrime(32, new Random());
-				System.out.print(primeMatrix[i][j] + "\t");
+//				System.out.print(primeMatrix[i][j] + "\t");
 			}
-			System.out.println();
+//			System.out.println();
 		}
 		return primeMatrix;
 	}

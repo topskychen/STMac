@@ -12,9 +12,9 @@ import java.io.*;
   */
 public class PMAC {
 
-	public BigInteger p, g, r;
+	public BigInteger p, g, r, phi_p;
 
-	private final static int BITLENGTH = 32;
+	private final static int BITLENGTH = 1024;
 	private final static int CERTAINTY = 100;
 	private final static int MVALUE = 32;
 	private final static int CVALUE = 2;
@@ -24,6 +24,8 @@ public class PMAC {
 
 	int[] t = new int[100]; // timestamp array
 
+	public BigInteger[][] mappingTable = null;
+	
 	/**
 	 * Constructs an instance of the PMAC with BITLENGTH of modulus and at least
 	 * 1-2^(-CERTAINTY) certainty of primes generation.
@@ -31,11 +33,9 @@ public class PMAC {
 
 	public PMAC() {
 		keyGeneration(BITLENGTH, CERTAINTY);
+		PrimeMatrix papp = new PrimeMatrix();
+		mappingTable = papp.genMatrix(MVALUE, CVALUE);
 	}
-
-	PrimeMatrix papp = new PrimeMatrix();
-	// fix the mapping table on given MVALUE and CVALUE
-	public final int[][] mappingTable = papp.genMatrix(MVALUE, CVALUE);
 
 	/**
 	 * @param x
@@ -43,74 +43,88 @@ public class PMAC {
 	 * @return the TT(x) value of string x
 	 */
 	public BigInteger generatePix(String x) {
-
-		BigInteger Pix = BigInteger.valueOf(1);
-
-		// System.out.println("The Initial ¦°(x) value is " + Pix);
-
+		BigInteger Pix = BigInteger.ONE;
 		for (int i = 0; i < x.length(); i++) {
-
-			// the "decimal" ASCII code for char '0' is 48, '1' is 49
-			int j = x.charAt(i) - 48;
-
-			BigInteger pi = BigInteger.valueOf(mappingTable[i][j]);
-			// System.out.print("pi is "+pi+"\t");
-
-			// Calculate ¦°(x)=£k(x1)£k(x2)£k(x3)...£k(xm)
-			Pix = Pix.multiply(pi);
-			// System.out.println("pix is " + Pix);
+			Pix = Pix.multiply(mappingTable[i][x.charAt(i) - '0']).mod(phi_p);
 		}
-
-		// System.out.println("The Final ¦°(x) value is " + Pix);
 		return Pix;
 	}
+	
+	/**
+	 * @param x
+	 *            string x which denotes the locaton info
+	 * @return the TT(x) value of string x
+	 */
+	public BigInteger generatePixPhit(String x, int i_t) {
+		BigInteger Pix = BigInteger.ONE;
+		for (int i = 0; i < x.length(); i++) {
+			Pix = Pix.multiply(mappingTable[i][x.charAt(i) - '0']).mod(phi_p);
+		}
+		Pix = Pix.multiply(timeDegist(i_t)).mod(phi_p);
+		return Pix;
+	}
+	
 
 	public BigInteger generateAggrePix(String[] x) {
-
 		x = new String[T_END - T_START];
 		BigInteger aggrePix = BigInteger.valueOf(1);
-
 		for (int i = 0; i < T_END - T_START; i++) {
-
-			aggrePix = aggrePix.multiply(generatePix(x[i]));
+			aggrePix = aggrePix.multiply(generatePix(x[i])).mod(phi_p);
 		}
-
 		return aggrePix;
 	}
 
 	/**
-	 * compute ¦°(su)
+	 * compute pi(su) 
 	 * 
 	 * @param su
 	 *            string which denotes the suffix
 	 * @param d
 	 *            length of predicate, the index where suffix begins
-	 * @return the ¦°(su) value
+	 * @return the pi(su)
 	 */
 	public BigInteger generatePiSu(String su, int d) {
-		BigInteger PiSux = BigInteger.valueOf(1);
-		// System.out.println("The Initial ¦°(x) value is " + PiSux);
+		BigInteger PiSux = BigInteger.ONE;
 		for (int i = 0; i < su.length(); i++) {
-			// the "decimal" ASCII code for char '0' is 48, '1' is 49
-			int j = su.charAt(i) - 48;
-			BigInteger pi = BigInteger.valueOf(mappingTable[i + d][j]);
-			// System.out.print("pi is "+pi+"\t");
-			// Calculate ¦°(x)=£k(x1)£k(x2)£k(x3)...£k(xm)
-			PiSux = PiSux.multiply(pi);
-			// System.out.println("pix is " + Pix);
+			PiSux = PiSux.multiply(mappingTable[i + d][su.charAt(i) - '0']).mod(phi_p);
 		}
-		// System.out.println("The Final ¦°(su) value is " + PiSux);
 		return PiSux;
 	}
 
+	/**
+	 * compute g^pi(su) 
+	 * 
+	 * @param su
+	 *            string which denotes the suffix
+	 * @param d
+	 *            length of predicate, the index where suffix begins
+	 * @return the g^pi(su)
+	 */
+	public BigInteger generateGPiSu(String su, int d){
+		return g.modPow(generatePiSu(su, d).multiply(r).mod(phi_p), p);
+	}
 
+	
+	/**
+	 * compute PMAC by pre
+	 * @param g_pi_su
+	 * 					g^pi(su)
+	 * @param pi_prex 
+	 * 					pi(pre(x))
+	 * @return PMAC
+	 * 
+	 * */
+	public BigInteger generatePMACPrex(BigInteger g_pi_su, BigInteger pi_prex){
+		return g_pi_su.modPow(pi_prex, p);
+	}
+	
 	public BigInteger aggreSecPiSux(String[] su, int start, int end, int d) {
 		su = new String[end - start];
 		BigInteger result = BigInteger.valueOf(1);
 		for (int i = start; i < end - start; i++) {
 			result = result.multiply(generatePiSu(su[i], d));
 		}		
-		result = g.modPow(result, p);
+		result = g.modPow(result.multiply(r).mod(phi_p), p);
 		return result;		
 	}
 
@@ -139,7 +153,8 @@ public class PMAC {
 		 */
 		p = new BigInteger(bitLength, certainty, new Random());
 		r = new BigInteger(bitLength, certainty, new Random());
-
+		phi_p = p.subtract(BigInteger.ONE);
+		
 		/**
 		 * store g, r, p in the array key for future use, any better assignment
 		 * form?
@@ -148,8 +163,8 @@ public class PMAC {
 		key[1] = p;
 		key[2] = r;
 
-		System.out.println("p = " + p);
-		System.out.println("r = " + r);
+//		System.out.println("p = " + p);
+//		System.out.println("r = " + r);
 
 		return key;
 
@@ -174,26 +189,11 @@ public class PMAC {
 		if (i < 0) {
 			throw new IllegalArgumentException();
 		} else if (i == 0) { // time domain not included
-			return BigInteger.valueOf(1);
+			return BigInteger.ONE;
 		} else {
-			String ts = "" + t[i] + t[i - 1] + t[i + 1];
-			MessageDigest md = null;
-			try {
-				md = MessageDigest.getInstance("MD5");
-			} catch (NoSuchAlgorithmException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			try {
-				md.update(ts.getBytes("UTF-8"));
-			} catch (UnsupportedEncodingException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			BigInteger result = new BigInteger(1, md.digest());
-			System.out.println("digest of concatenated timestamps are: "
-					+ result);
-			return result;
+			String ts = "" + t[i] + "|" + t[i - 1] + "|" + t[i + 1];
+			Hasher.hashString(ts);
+			return new BigInteger(Hasher.hashString(ts), 16);
 		}
 	}
 
@@ -206,38 +206,35 @@ public class PMAC {
 	 *            timestamp index for point
 	 * @return PMAC value of input point
 	 */
-	public BigInteger singlepointPMAC(String x, int i) {
-		return g.modPow((generatePix(x)).multiply(timeDegist(i)).multiply(r), p);
+	public BigInteger singlepointPMAC(String x, int i_t) {
+		return g.modPow(generatePixPhit(x, i_t).multiply(r).mod(phi_p), p);
 	}
-
+	
+	
 	public BigInteger trajectoryPMAC(String x[], int start, int end) {
-		BigInteger pmac[] = new BigInteger[end - start];
+//		BigInteger pmac[] = new BigInteger[end - start];
 		BigInteger result;
 		BigInteger tmp = BigInteger.valueOf(1);
 		for (int i = start; i < end; i++) {
-			pmac[i] = singlepointPMAC(x[i], i); // generate PMAC for every point
-												// separately
-			tmp = tmp.multiply(generatePix(x[i])).multiply(timeDegist(i));
+//			pmac[i] = singlepointPMAC(x[i], i); // generate PMAC for every point
+			tmp = tmp.multiply(generatePixPhit(x[i], i));
 		}
-		result = g.modPow(tmp.multiply(r), p); // generated by authenticator
+		result = g.modPow(tmp, p); // generated by authenticator
 		return result;
 	}
 
 	/**
+	 * 
 	 * @param args
 	 * @throws IOException
 	 */
 	public static void main(String[] args) throws IOException {
 		// TODO Auto-generated method stub
 		PMAC pmac = new PMAC();
-
 		String x = "01110011100011100110001000010110";
-
 		System.out.println("Encrypted message is: " + x);
-
 		BigInteger pmacval = pmac.singlepointPMAC(x, 0);
-
-		System.out.println("The PMAC value is " + pmacval);
+		System.out.println("The PMAC value is " + pmacval);	
 
 	}
 
