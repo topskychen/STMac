@@ -1,4 +1,4 @@
-package index;
+package crypto;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -9,10 +9,9 @@ import java.lang.management.ThreadMXBean;
 import java.math.BigInteger;
 
 import timer.Timer;
-import crypto.PMAC;
 
 
-public class VO implements Serializable {
+public class PMACTester implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -166,7 +165,7 @@ public class VO implements Serializable {
 				.readLine();
 		//010010111000111001100010000
 		
-		VO vo = new VO();
+		PMACTester vo = new PMACTester();
 		vo.singlepointVerify(x, q);
 		
 		int times = 1000;
