@@ -1,4 +1,4 @@
-package spatialindex;
+package index;
 
 import java.lang.Math;
 
