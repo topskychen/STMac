@@ -45,7 +45,7 @@ public class PMACTester implements Serializable {
 //			System.out.println("suffix of x is: " + su);
 		Timer timer = new Timer();
 		// Get CPU time in nanoseconds (one billionth of a second)
-		PMAC pmacapp = new PMAC();
+		PMAC pmacapp = new PMAC(); pmacapp.initKey();
 		
 		/**
 		 * authenticator preparation
