@@ -11,6 +11,11 @@ import java.math.BigInteger;
 import timer.Timer;
 
 
+/***
+ * This is the tester for PMAC
+ * @author chenqian
+ *
+ */
 public class PMACTester implements Serializable {
 
 	private static final long serialVersionUID = 1L;
