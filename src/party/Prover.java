@@ -15,11 +15,11 @@ import crypto.VO;
  * @author chenqian
  *
  */
-public class Client extends PMAC{
+public class Prover extends PMAC{
 
 	BigInteger 		singlePMAC 	= null;
 	Trajectory 		trajectory	= null;
-	public Client() {
+	public Prover() {
 		super();
 	}
 	
@@ -45,7 +45,7 @@ public class Client extends PMAC{
 	public void requestPMAC(Trajectory trajectory, Authenticator authenticator) {
 		// TODO Auto-generated method stub
 		this.trajectory = trajectory;
-		singlePMAC = authenticator.generatePMAC(this.trajectory.getLocation(), 0);
+		singlePMAC = authenticator.generatePMAC(this.trajectory.getLocation(), -1, 0, 1);
 	}
 
 	/**
@@ -54,9 +54,10 @@ public class Client extends PMAC{
 	 */
 	public void initKey(PMAC pmac) {
 		// TODO Auto-generated method stub
-		this.p = pmac.p;
+		this.n = pmac.n;
+		this.e = pmac.e;
 		this.g = pmac.g;
-		this.phi_p = pmac.phi_p;
+		this.phi_n = pmac.phi_n;
 		this.mappingTable = pmac.mappingTable;
 	}
 
