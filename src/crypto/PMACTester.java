@@ -56,7 +56,7 @@ public class PMACTester implements Serializable {
 		 * authenticator preparation
 		 * */
 		timer.reset();
-		BigInteger singlepmacValue = pmacapp.generatePMAC(x, 0);
+		BigInteger singlepmacValue = pmacapp.generatePMAC(x, -1, 0, 1);
 		timer.stop();
 		System.out.println("Authenticator time:\t" + timer.timeElapseinMs() + "ms");
 		
@@ -64,7 +64,7 @@ public class PMACTester implements Serializable {
 		 * client preparation
 		 * */
 		timer.reset();
-		BigInteger g_pi_su = pmacapp.generateGPiSu(x, d, 0);
+		BigInteger g_pi_su = pmacapp.generateGPiSu(x, d);
 		timer.stop();
 		System.out.println("Client time: \t\t" + timer.timeElapseinMs() + "ms");
 		
@@ -72,9 +72,9 @@ public class PMACTester implements Serializable {
 		 * verifier verification
 		 * */
 		timer.reset();
-		BigInteger pi_prex = pmacapp.generatePix(pre, 0);
-		BigInteger verifierComponent = pmacapp.generatePMACbyPrex(g_pi_su, pi_prex);
-		Boolean isVerify = singlepmacValue.equals(verifierComponent);
+		BigInteger pi_prex = pmacapp.generatePix(pre);
+		BigInteger verifierComponent = pmacapp.generatePMACbyPrex(g_pi_su, pi_prex, -1, 0, 1);
+		Boolean isVerify = pmacapp.verify(singlepmacValue, verifierComponent);
 		timer.stop();
 		System.out.println("Verifier time: \t\t" + timer.timeElapseinMs() + "ms");
 //			System.out.println("verifierComponent is \t\t\t" + verifierComponent);
@@ -131,9 +131,9 @@ public class PMACTester implements Serializable {
 		
 		// verifier: compute PMAC out of VO, and compare
 		timer.reset();
-		BigInteger pi_prex = pmacapp.generatePix(pre, 0);
-		BigInteger verifierComponent = pmacapp.generateTraPMACbyPrex(tra_suffixEncry, pi_prex, start, end);
-		Boolean isVerify = aggregatedPMAC.equals(verifierComponent);
+		BigInteger pi_prex = pmacapp.generatePix(pre);
+		BigInteger verifierComponent = pmacapp.generateTraPMACbyPrex(tra_suffixEncry, pi_prex, t[start - 1], t[start], t[end], t[end + 1]);
+		Boolean isVerify = pmacapp.verify(aggregatedPMAC, verifierComponent);
 		timer.stop();
 		System.out.println("Verifier time: \t\t" + timer.timeElapseinMs() + "ms");
 		

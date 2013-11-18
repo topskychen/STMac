@@ -1,10 +1,10 @@
 package crypto;
 
 import java.math.*;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.io.*;
+
+import IO.DataIO;
 
 /**
  * This program calculates the PMAC value of given string x.
@@ -15,7 +15,11 @@ public class PMAC {
 	/**
 	 * Here note n is composed of two large primes.
 	 * */
-	public BigInteger n = null, g = null, r = null, phi_n = null;
+	public BigInteger n = null, g = null, e = null;
+	
+	private BigInteger phi_n = null, d = null;
+	private BigInteger r = null; // here r is for randomness.
+	private byte[] sk = null;
 	
 	private final static int BITLENGTH = 1024;
 	private final static int CERTAINTY = 100;
@@ -78,13 +82,12 @@ public class PMAC {
 	 *            string x which denotes the locaton info
 	 * @return the TT(x) value of string x
 	 */
-	public BigInteger generatePix(String x, int i_t) {
+	public BigInteger generatePix(String x) {
 		checkInitKeys();
 		BigInteger Pix = BigInteger.ONE;
 		for (int i = 0; i < x.length(); i++) {
 			Pix = Pix.multiply(mappingTable[i][x.charAt(i) - '0']).mod(phi_n);
 		}
-		Pix = Pix.multiply(timeDigest(i_t)).mod(phi_n);
 //		Pix = Pix.multiply(r).mod(phi_p);
 		return Pix;
 	}
@@ -108,13 +111,14 @@ public class PMAC {
 	 *            length of predicate, the index where suffix begins
 	 * @return the pi(su)
 	 */
-	public BigInteger generatePiSu(String su, int d, int i_t) {
+	public BigInteger generatePiSu(String su, int d) {
 		checkInitKeys();
-		BigInteger PiSux = BigInteger.ONE;
+		BigInteger PiSux = r;
 		for (int i = d; i < su.length(); i++) {
 			PiSux = PiSux.multiply(mappingTable[i][su.charAt(i) - '0']).mod(phi_n);
 		}
-		PiSux = PiSux.multiply(timeDigest(i_t)).mod(phi_n);
+//		PiSux = PiSux.multiply(r);
+//		PiSux = PiSux.multiply(timeDigest(i_t)).mod(phi_n);
 		return PiSux;
 	}
 
@@ -127,8 +131,8 @@ public class PMAC {
 	 *            length of predicate, the index where suffix begins
 	 * @return the g^pi(su, t)
 	 */
-	public BigInteger generateGPiSu(String su, int d, int i_t){
-		return g.modPow(generatePiSu(su, d, i_t), n);
+	public BigInteger generateGPiSu(String su, int d){
+		return g.modPow(generatePiSu(su, d), n);
 	}
 
 	
@@ -145,9 +149,9 @@ public class PMAC {
 	 */
 	public BigInteger generateTraPiSu(String[] su, int start, int end, int d) {
 		checkInitKeys();
-		BigInteger result = BigInteger.ONE;
+		BigInteger result = BigInteger.ZERO;
 		for (int i = start; i <= end; i++) {
-			result = result.multiply(generatePiSu(su[i], d, t[i])).mod(phi_n);
+			result = result.add(generatePiSu(su[i], d)).mod(phi_n);
 		}		
 		return result;		
 	}
@@ -158,6 +162,28 @@ public class PMAC {
 	}
 
 
+	/**
+	 * 
+	 * @param t
+	 * @return
+	 */
+	public BigInteger getPsiTime(int t) {
+		String ts = "" + t;
+		return AES.encryptBI(sk, Hasher.hashBytes(ts.getBytes()));
+	}
+	
+	/**
+	 * 
+	 * @param t1
+	 * @param t2
+	 * @param t3
+	 * @param t4
+	 * @return
+	 */
+	public BigInteger getPsiTime(int t1, int t2, int t3, int t4) {
+		return getPsiTime(t2).subtract(getPsiTime(t1)).add(getPsiTime(t3)).subtract(getPsiTime(t4)).mod(phi_n);
+	}
+	
 	/**
 	 * compute hash of time stamps t[i], based on t[i] + t[i-1] + t[i+1]
 	 * 
@@ -171,7 +197,7 @@ public class PMAC {
 			return BigInteger.ONE;
 		} else {
 			String ts = "" + t[i] + "|" + t[i - 1] + "|" + t[i + 1];
-			Hasher.hashString(ts);
+//			Hasher.hashString(ts);
 			return new BigInteger(Hasher.hashString(ts), 16);
 		}
 	}
@@ -185,8 +211,8 @@ public class PMAC {
 	 * @return PMAC
 	 * 
 	 * */
-	public BigInteger generatePMACbyPrex(BigInteger g_pi_su, BigInteger pi_prex){
-		return g_pi_su.modPow(pi_prex.multiply(r).mod(phi_n), n);
+	public BigInteger generatePMACbyPrex(BigInteger g_pi_su, BigInteger pi_prex, int t1, int t2, int t3){
+		return g_pi_su.modPow(pi_prex, n).multiply(g.modPow(getPsiTime(t1, t2, t2, t3), n)).mod(n);
 	}
 	
 	/**
@@ -199,8 +225,11 @@ public class PMAC {
 	 * @return PMAC value of input point
 	 */
 	
-	public BigInteger generatePMAC(String x, int i_t) {
-		return g.modPow(generatePix(x, i_t).multiply(r).mod(phi_n), n);
+	public BigInteger generatePMAC(String x, int t1, int t2, int t3) {
+		BigInteger exp = generatePix(x).multiply(r).mod(phi_n);
+		exp = exp.add(getPsiTime(t1, t2, t2, t3)).mod(phi_n);
+		exp = exp.multiply(d).mod(phi_n);
+		return g.modPow(exp, n);
 	}
 	
 	/**
@@ -212,19 +241,19 @@ public class PMAC {
 	 * @return PMAC
 	 * 
 	 * */
-	public BigInteger generateTraPMACbyPrex(BigInteger g_pi_su, BigInteger pi_prex, int start, int end){
-		BigInteger pow = new BigInteger(new Integer(end - start + 1).toString());
-		pow = pi_prex.modPow(pow, phi_n);
-		return g_pi_su.modPow(pow.multiply(r).mod(phi_n), n);
+	public BigInteger generateTraPMACbyPrex(BigInteger g_pi_su, BigInteger pi_prex, int t1, int t2, int t3, int t4){
+		BigInteger res = g_pi_su.modPow(pi_prex, n);
+		BigInteger res2 = g.modPow(getPsiTime(t1, t2, t3, t4), n);
+		return res.multiply(res2).mod(n);
 	}
 	
 	public BigInteger generateTraPMAC(String x[], int start, int end) {
 //		BigInteger pmac[] = new BigInteger[end - start];
-		BigInteger tmp = BigInteger.ONE;
+		BigInteger res = BigInteger.ONE;
 		for (int i = start; i <= end; i++) {
-			tmp = tmp.multiply(generatePix(x[i], i)).mod(phi_n);
+			res = res.multiply(generatePMAC(x[i], t[i - 1], t[i], t[i + 1]));
 		}
-		return g.modPow(tmp.multiply(r).mod(phi_n), n); // generated by authenticator
+		return res;
 	}
 	
 	/**
@@ -241,7 +270,7 @@ public class PMAC {
 	 */
 	public BigInteger[] keyGeneration(int bitLength, int certainty) {
 
-		BigInteger key[] = new BigInteger[3];
+		BigInteger key[] = new BigInteger[7];
 
 		// ToDo: how to test g
 		g = new BigInteger("2");
@@ -253,17 +282,28 @@ public class PMAC {
 		BigInteger p = new BigInteger(bitLength / 2, certainty, new Random());
 		BigInteger q = new BigInteger(bitLength / 2, certainty, new Random());
 		n = p.multiply(q);
-		r = new BigInteger(bitLength, certainty, new Random());
 		phi_n = p.subtract(BigInteger.ONE).multiply(q.subtract(BigInteger.ONE));
+		e =	RSA.PRIME_P;
+		while(phi_n.gcd(e).compareTo(BigInteger.ONE) > 0) e = e.add(new BigInteger("2"));
+		d = e.modInverse(phi_n);
+		r = new BigInteger(bitLength, certainty, new Random());
+		sk = AES.getSampleKey();
 		
+		/**
+		 * Set the instance of Hasher to MD5, since it is 16 bytes, we use the digest as the input of AES.
+		 */
+		Hasher.setInstance("MD5");
 		/**
 		 * store g, r, p in the array key for future use, any better assignment
 		 * form?
 		 */
 		key[0] = g;
 		key[1] = p;
-		key[2] = r;
-
+		key[2] = q;
+		key[3] = r; 
+		key[4] = new BigInteger(DataIO.toHexFromBytes(sk), 16); 
+		key[5] = e;
+		key[6] = d;
 
 		return key;
 
@@ -277,6 +317,10 @@ public class PMAC {
 		return sb.toString();
 	}
 	
+	public boolean verify(BigInteger pmac, BigInteger component) {
+		return pmac.modPow(e, n).equals(component);
+	}
+	
 	/**
 	 * 
 	 * @param args
@@ -287,7 +331,7 @@ public class PMAC {
 		PMAC pmac = new PMAC(); pmac.initKey();
 		String x = "01110011100011100110001000010110";
 		System.out.println("Encrypted message is: " + x);
-		BigInteger pmacval = pmac.generatePMAC(x, 0);
+		BigInteger pmacval = pmac.generatePMAC(x, 0, 1, 2);
 		System.out.println("The PMAC value is " + pmacval);	
 
 	}

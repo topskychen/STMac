@@ -40,7 +40,7 @@ public class VO {
 		timer.reset();
 		if (query.getQueryType() == Query.POINT_QUERY) {
 			int d = query.getRange().length();
-			g_pi_su = pmac.generateGPiSu(trajectory.getLocation(), d, 0);
+			g_pi_su = pmac.generateGPiSu(trajectory.getLocation(), d);
 		} else {
 			throw new IllegalStateException("The query type is unknown.");
 		}
@@ -60,9 +60,10 @@ public class VO {
 			String pre = trajectory.getLocation().substring(0, d);
 			if (!pre.equals(query.getRange())) 
 				throw new IllegalStateException("The query is not the prefix of location, pre : " + pre + ", query : " + query.getRange());
-			BigInteger pi_prex = pmac.generatePix(pre, 0);
-			BigInteger verifierComponent = pmac.generatePMACbyPrex(g_pi_su, pi_prex);
+			BigInteger pi_prex = pmac.generatePix(pre);
+			BigInteger verifierComponent = pmac.generatePMACbyPrex(g_pi_su, pi_prex, -1, 0, 1);
 			isVerify = singlePMAC.equals(verifierComponent);
+			isVerify = pmac.verify(singlePMAC, verifierComponent);
 		} else {
 			throw new IllegalStateException("The query type is unknown.");
 		}
