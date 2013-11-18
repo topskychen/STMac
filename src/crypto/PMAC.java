@@ -17,8 +17,8 @@ public class PMAC {
 	 * */
 	public BigInteger n = null, g = null, e = null;
 	
-	private BigInteger phi_n = null, d = null;
-	private BigInteger r = null; // here r is for randomness.
+	public BigInteger phi_n = null, d = null;
+	public BigInteger r = null, g_r = null; // here r is for randomness.
 	private byte[] sk = null;
 	
 	private final static int BITLENGTH = 1024;
@@ -104,7 +104,7 @@ public class PMAC {
 
 	/**
 	 * compute pi(su) 
-	 * 
+	 * NOTE: this function is called by the prover, thus phi_n cannot be used.
 	 * @param su
 	 *            string which denotes the suffix
 	 * @param d
@@ -113,9 +113,9 @@ public class PMAC {
 	 */
 	public BigInteger generatePiSu(String su, int d) {
 		checkInitKeys();
-		BigInteger PiSux = r;
+		BigInteger PiSux = BigInteger.ONE;
 		for (int i = d; i < su.length(); i++) {
-			PiSux = PiSux.multiply(mappingTable[i][su.charAt(i) - '0']).mod(phi_n);
+			PiSux = PiSux.multiply(mappingTable[i][su.charAt(i) - '0']);
 		}
 //		PiSux = PiSux.multiply(r);
 //		PiSux = PiSux.multiply(timeDigest(i_t)).mod(phi_n);
@@ -132,7 +132,7 @@ public class PMAC {
 	 * @return the g^pi(su, t)
 	 */
 	public BigInteger generateGPiSu(String su, int d){
-		return g.modPow(generatePiSu(su, d), n);
+		return g_r.modPow(generatePiSu(su, d), n);
 	}
 
 	
@@ -151,14 +151,14 @@ public class PMAC {
 		checkInitKeys();
 		BigInteger result = BigInteger.ZERO;
 		for (int i = start; i <= end; i++) {
-			result = result.add(generatePiSu(su[i], d)).mod(phi_n);
+			result = result.add(generatePiSu(su[i], d));
 		}		
-		return result;		
+		return result;
 	}
 	
 	public BigInteger generateTraGPiSu(String[] su, int start, int end, int d) {
 		checkInitKeys();
-		return g.modPow(generateTraPiSu(su, start, end, d), n);
+		return g_r.modPow(generateTraPiSu(su, start, end, d), n);
 	}
 
 
@@ -287,6 +287,7 @@ public class PMAC {
 		while(phi_n.gcd(e).compareTo(BigInteger.ONE) > 0) e = e.add(new BigInteger("2"));
 		d = e.modInverse(phi_n);
 		r = new BigInteger(bitLength, certainty, new Random());
+		g_r = g.modPow(r, n);
 		sk = AES.getSampleKey();
 		
 		/**
