@@ -1,5 +1,7 @@
 package crypto;
 
+import index.Trajectory;
+
 import java.math.*;
 import java.util.*;
 import java.io.*;
@@ -238,6 +240,27 @@ public class PMAC {
 		exp = exp.add(getPsiTime(t1, t2, t2, t3)).mod(phi_n);
 		exp = exp.multiply(d).mod(phi_n);
 		return new BigInteger[]{g.modPow(exp, n), r};
+	}
+	
+	public void generatePMAC(Trajectory tra, int start, int end) {
+		BigInteger[] sigma_r = new BigInteger[2];
+		for (int i = start; i <= end; i++ ) {
+			sigma_r = generatePMAC(tra.getLocation(i), 
+					tra.getTimeStamp(i - 1), tra.getTimeStamp(i), tra.getTimeStamp(i + 1));
+			tra.setSigma(i, sigma_r[0]);
+			tra.setR(i, sigma_r[1]);
+		}
+	}
+	
+	public BigInteger aggregatePMACs(Trajectory tra, int start, int end) {
+		BigInteger aggPMAC = BigInteger.ONE;
+		for (int i = start; i <= end; i ++) {
+			if (tra.getSigma(i) == null) {
+				throw new NullPointerException("Sigma @" + i + " is empty");
+			}
+			aggPMAC = aggPMAC.multiply(tra.getSigma(i)).mod(n);
+		}
+		return aggPMAC;
 	}
 	
 	/**
