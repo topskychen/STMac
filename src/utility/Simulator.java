@@ -5,8 +5,8 @@ package utility;
 
 import index.Query;
 import index.Trajectory;
-import party.Authenticator;
-import party.Client;
+import party.Generator;
+import party.Prover;
 import party.Verifier;
 import crypto.VO;
 
@@ -16,14 +16,14 @@ import crypto.VO;
  */
 public abstract class Simulator {
 
-	Authenticator 	authenticator			= null;
-	Client 			client					= null;
+	Generator 	authenticator			= null;
+	Prover 			client					= null;
 	Verifier 		verifier				= null;
 	double 			preparationTime 		= -1;
 	double 			verificationTime 		= -1;
 	long 			voSize					= -1;
 	
-	public Simulator(Authenticator authenticator, Client client, Verifier verifier) {
+	public Simulator(Generator authenticator, Prover client, Verifier verifier) {
 		this.authenticator = authenticator;
 		this.client = client;
 		this.verifier = verifier;

@@ -9,24 +9,15 @@ package index;
  */
 public class Query {
 
-	public static final int POINT_QUERY = 0;
-	public static final int TRAJECTORY_QUERY = 1;
 	
 	private int queryType;
 	String range;
 	int start, end;
 	
-	public Query(String range) {
-		this.range = range;
-		this.queryType = POINT_QUERY;
-	}
-	
-	
 	public Query(String range, int start, int end) {
 		this.range = range;
 		this.start = start;
 		this.end = end;
-		this.queryType = TRAJECTORY_QUERY;
 	}
 
 

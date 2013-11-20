@@ -17,8 +17,8 @@ import crypto.VO;
  */
 public class Prover extends PMAC{
 
-	BigInteger 		singlePMAC 	= null;
 	Trajectory 		trajectory	= null;
+	
 	public Prover() {
 		super();
 	}
@@ -42,22 +42,22 @@ public class Prover extends PMAC{
 	 * @param x
 	 * @param authenticator
 	 */
-	public void requestPMAC(Trajectory trajectory, Authenticator authenticator) {
+	public void requestPMAC(Trajectory trajectory, Generator generator, int start, int end) {
 		// TODO Auto-generated method stub
 		this.trajectory = trajectory;
-		singlePMAC = authenticator.generatePMAC(this.trajectory.getLocation(), -1, 0, 1);
+//		generator.generatePMAC(this.trajectory.getLocation(), -1, 0, 1);
+		generator.generatePMAC(trajectory, start, end);
 	}
-
+	
 	/**
 	 * init the keys at the client
 	 * @param pmac2
 	 */
 	public void initKey(PMAC pmac) {
 		// TODO Auto-generated method stub
+		this.g = pmac.g;
 		this.n = pmac.n;
 		this.e = pmac.e;
-		this.g = pmac.g;
-		this.phi_n = pmac.phi_n;
 		this.mappingTable = pmac.mappingTable;
 	}
 
@@ -68,10 +68,10 @@ public class Prover extends PMAC{
 	 * @param client
 	 * @return
 	 */
-	public VO prepareVO(Query query) {
+	public VO prepareVO(Query query, int start, int end) {
 		// TODO Auto-generated method stub
-		VO vo = new VO(singlePMAC, trajectory);
-		vo.prepare(this, query);
+		VO vo = new VO();
+		vo.prepare(this, trajectory, query, start, end);
 		return vo;
 	}
 }

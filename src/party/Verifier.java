@@ -44,10 +44,12 @@ public class Verifier extends PMAC{
 	 */
 	public void initKey(PMAC pmac) {
 		// TODO Auto-generated method stub
-		this.p = pmac.p;
 		this.g = pmac.g;
-		this.r = pmac.r;
-		this.phi_p = pmac.phi_p;
+		this.n = pmac.n;
+		this.e = pmac.e;
+		this.d = pmac.d;
+		this.sk = pmac.sk;
+		this.phi_n = pmac.phi_n;
 		this.mappingTable = pmac.mappingTable;
 	}
 	

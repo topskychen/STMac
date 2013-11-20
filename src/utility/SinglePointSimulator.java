@@ -5,8 +5,8 @@ package utility;
 
 import index.Query;
 import index.Trajectory;
-import party.Authenticator;
-import party.Client;
+import party.Generator;
+import party.Prover;
 import party.Verifier;
 import crypto.VO;
 
@@ -24,7 +24,7 @@ public class SinglePointSimulator extends Simulator {
 	 * @param client
 	 * @param verifier
 	 */
-	public SinglePointSimulator(Authenticator authenticator, Client client, Verifier verifier) {
+	public SinglePointSimulator(Generator authenticator, Prover client, Verifier verifier) {
 		// TODO Auto-generated constructor stub
 		super(authenticator, client, verifier);
 	}
@@ -39,7 +39,7 @@ public class SinglePointSimulator extends Simulator {
 //		Client client = new Client();
 //		Verifier verifier = new Verifier();
 		Trajectory trajectory = new Trajectory("01001011100011100110001000010110");
-		Query query = new Query("0");
+		Query query = new Query("0", 1, 2);
 		run(trajectory, query);
 	}
 
@@ -51,13 +51,13 @@ public class SinglePointSimulator extends Simulator {
 		 * Client requests the PMAC for a point.
 		 */
 //		String x = "0011";
-		client.requestPMAC(trajectory, authenticator);
+		client.requestPMAC(trajectory, authenticator, 1, 1);
 		
 		/**
 		 * Request VO from the client
 		 */
 //		Query query = new Query("00");
-		VO vo = client.prepareVO(query);
+		VO vo = client.prepareVO(query, 1, 1);
 		
 		/**
 		 * Verify the VO.
@@ -67,6 +67,7 @@ public class SinglePointSimulator extends Simulator {
 		} else {
 			System.out.println("Pass!");
 		}
+		System.out.println(vo.toString());
 		
 		preparationTime 	= vo.getPrepareTime();
 		verificationTime 	= vo.getVerifyTime();
@@ -78,13 +79,13 @@ public class SinglePointSimulator extends Simulator {
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		Authenticator authenticator = new Authenticator();
-		Client client = new Client();
+		Generator authenticator = new Generator();
+		Prover client = new Prover();
 		Verifier verifier = new Verifier();
 		SinglePointSimulator singlePointSimulator = new SinglePointSimulator(authenticator, client, verifier);
 		singlePointSimulator.init();
 		singlePointSimulator.run();
-		System.out.println(singlePointSimulator.toString());
+		System.out.println(singlePointSimulator.toString());;
 	}
 
 

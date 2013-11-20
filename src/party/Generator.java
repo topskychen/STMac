@@ -9,10 +9,10 @@ import crypto.PMAC;
  * @author chenqian
  *
  */
-public class Authenticator extends PMAC{
+public class Generator extends PMAC{
 
 	
-	public Authenticator() {
+	public Generator() {
 		super();
 		this.initKey();
 	}

@@ -5,8 +5,8 @@ package utility;
 
 import index.Query;
 import index.Trajectory;
-import party.Authenticator;
-import party.Client;
+import party.Generator;
+import party.Prover;
 import party.Verifier;
 
 /**
@@ -20,7 +20,7 @@ public class TrajectorySimulator extends Simulator {
 	 * @param client
 	 * @param verifier
 	 */
-	public TrajectorySimulator(Authenticator authenticator, Client client,
+	public TrajectorySimulator(Generator authenticator, Prover client,
 			Verifier verifier) {
 		super(authenticator, client, verifier);
 		// TODO Auto-generated constructor stub
