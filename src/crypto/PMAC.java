@@ -3,7 +3,9 @@ package crypto;
 import java.math.*;
 import java.util.*;
 import java.io.*;
+import java.io.ObjectInputStream.GetField;
 
+import timer.Timer;
 import IO.DataIO;
 
 /**
@@ -18,14 +20,16 @@ public class PMAC {
 	public BigInteger n = null, g = null, e = null;
 	
 	public BigInteger phi_n = null, d = null;
-	public BigInteger r = null, g_r = null; // here r is for randomness.
-	private byte[] sk = null;
+//	public BigInteger r = null, g_r = null; // here r is for randomness.
+	public byte[] sk = null;
 	
 	private final static int BITLENGTH = 1024;
 	private final static int CERTAINTY = 100;
 	private final static int MVALUE = 32;
 	private final static int CVALUE = 2;
 
+	private int bitLength;
+	
 	private final static int T_START = 1; // time stamp begins from 1, not 0
 	private final static int T_END = 8;
 
@@ -131,8 +135,8 @@ public class PMAC {
 	 *            length of predicate, the index where suffix begins
 	 * @return the g^pi(su, t)
 	 */
-	public BigInteger generateGPiSu(String su, int d){
-		return g_r.modPow(generatePiSu(su, d), n);
+	public BigInteger generateGPiSu(String su, BigInteger r, int d){
+		return g.modPow(generatePiSu(su, d).multiply(r), n);
 	}
 
 	
@@ -147,18 +151,18 @@ public class PMAC {
 	 * 			length of predicate, the index begins
 	 *  @return g^pi(x[i])
 	 */
-	public BigInteger generateTraPiSu(String[] su, int start, int end, int d) {
+	public BigInteger generateTraPiSu(String[] su, BigInteger[] rs, int start, int end, int d) {
 		checkInitKeys();
 		BigInteger result = BigInteger.ZERO;
 		for (int i = start; i <= end; i++) {
-			result = result.add(generatePiSu(su[i], d));
+			result = result.add(generatePiSu(su[i], d).multiply(rs[i]));
 		}		
 		return result;
 	}
 	
-	public BigInteger generateTraGPiSu(String[] su, int start, int end, int d) {
+	public BigInteger generateTraGPiSu(String[] su, BigInteger[] rs, int start, int end, int d) {
 		checkInitKeys();
-		return g_r.modPow(generateTraPiSu(su, start, end, d), n);
+		return g.modPow(generateTraPiSu(su, rs, start, end, d), n);
 	}
 
 
@@ -181,8 +185,10 @@ public class PMAC {
 	 * @return
 	 */
 	public BigInteger getPsiTime(int t1, int t2, int t3, int t4) {
+//		return BigInteger.ONE;
 		return getPsiTime(t2).subtract(getPsiTime(t1)).add(getPsiTime(t3)).subtract(getPsiTime(t4)).mod(phi_n);
 	}
+
 	
 	/**
 	 * compute hash of time stamps t[i], based on t[i] + t[i-1] + t[i+1]
@@ -225,11 +231,13 @@ public class PMAC {
 	 * @return PMAC value of input point
 	 */
 	
-	public BigInteger generatePMAC(String x, int t1, int t2, int t3) {
+	public BigInteger[] generatePMAC(String x, int t1, int t2, int t3) {
+//		BigInteger r = BigInteger.probablePrime(bitLength, new Random());
+		BigInteger r = Constants.PRIME_P;
 		BigInteger exp = generatePix(x).multiply(r).mod(phi_n);
 		exp = exp.add(getPsiTime(t1, t2, t2, t3)).mod(phi_n);
 		exp = exp.multiply(d).mod(phi_n);
-		return g.modPow(exp, n);
+		return new BigInteger[]{g.modPow(exp, n), r};
 	}
 	
 	/**
@@ -247,14 +255,14 @@ public class PMAC {
 		return res.multiply(res2).mod(n);
 	}
 	
-	public BigInteger generateTraPMAC(String x[], int start, int end) {
-//		BigInteger pmac[] = new BigInteger[end - start];
-		BigInteger res = BigInteger.ONE;
-		for (int i = start; i <= end; i++) {
-			res = res.multiply(generatePMAC(x[i], t[i - 1], t[i], t[i + 1]));
-		}
-		return res;
-	}
+//	public BigInteger generateTraPMAC(String x[], int start, int end) {
+////		BigInteger pmac[] = new BigInteger[end - start];
+//		BigInteger res = BigInteger.ONE;
+//		for (int i = start; i <= end; i++) {
+//			res = res.multiply(generatePMAC(x[i], t[i - 1], t[i], t[i + 1]));
+//		}
+//		return res;
+//	}
 	
 	/**
 	 * generate keys.
@@ -270,6 +278,7 @@ public class PMAC {
 	 */
 	public BigInteger[] keyGeneration(int bitLength, int certainty) {
 
+		this.bitLength = bitLength; 
 		BigInteger key[] = new BigInteger[7];
 
 		// ToDo: how to test g
@@ -286,8 +295,8 @@ public class PMAC {
 		e =	RSA.PRIME_P;
 		while(phi_n.gcd(e).compareTo(BigInteger.ONE) > 0) e = e.add(new BigInteger("2"));
 		d = e.modInverse(phi_n);
-		r = new BigInteger(bitLength, certainty, new Random());
-		g_r = g.modPow(r, n);
+//		r = new BigInteger(bitLength, certainty, new Random());
+//		g_r = g.modPow(r, n);
 		sk = AES.getSampleKey();
 		
 		/**
@@ -301,7 +310,7 @@ public class PMAC {
 		key[0] = g;
 		key[1] = p;
 		key[2] = q;
-		key[3] = r; 
+//		key[3] = r; 
 		key[4] = new BigInteger(DataIO.toHexFromBytes(sk), 16); 
 		key[5] = e;
 		key[6] = d;
@@ -314,7 +323,6 @@ public class PMAC {
 		StringBuffer sb = new StringBuffer("");
 		sb.append("public g is " + g + "\n");
 		sb.append("public n is " + n + "\n");
-		sb.append("private r is " + r + "\n");
 		return sb.toString();
 	}
 	
@@ -329,11 +337,12 @@ public class PMAC {
 	 */
 	public static void main(String[] args) throws IOException {
 		// TODO Auto-generated method stub
+		
 		PMAC pmac = new PMAC(); pmac.initKey();
 		String x = "01110011100011100110001000010110";
 		System.out.println("Encrypted message is: " + x);
-		BigInteger pmacval = pmac.generatePMAC(x, 0, 1, 2);
-		System.out.println("The PMAC value is " + pmacval);	
+		BigInteger sigma = pmac.generatePMAC(x, 0, 1, 2)[0];
+		System.out.println("The PMAC value is " + sigma);	
 
 	}
 

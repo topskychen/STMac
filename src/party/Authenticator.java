@@ -29,7 +29,7 @@ public class Authenticator extends PMAC{
 	 * Initialize the keys at client
 	 * @param client
 	 */
-	public void initClientKey(Client client) {
+	public void initClientKey(Prover client) {
 		// TODO Auto-generated method stub
 		client.initKey(this);
 	}

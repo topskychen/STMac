@@ -56,15 +56,15 @@ public class PMACTester implements Serializable {
 		 * authenticator preparation
 		 * */
 		timer.reset();
-		BigInteger singlepmacValue = pmacapp.generatePMAC(x, -1, 0, 1);
+		BigInteger[] sigma_r = pmacapp.generatePMAC(x, -1, 0, 1);
 		timer.stop();
-		System.out.println("Authenticator time:\t" + timer.timeElapseinMs() + "ms");
+		System.out.println("Generator time:\t" + timer.timeElapseinMs() + "ms");
 		
 		/**
 		 * client preparation
 		 * */
 		timer.reset();
-		BigInteger g_pi_su = pmacapp.generateGPiSu(x, d);
+		BigInteger g_pi_su = pmacapp.generateGPiSu(x, sigma_r[1], d);
 		timer.stop();
 		System.out.println("Client time: \t\t" + timer.timeElapseinMs() + "ms");
 		
@@ -74,7 +74,7 @@ public class PMACTester implements Serializable {
 		timer.reset();
 		BigInteger pi_prex = pmacapp.generatePix(pre);
 		BigInteger verifierComponent = pmacapp.generatePMACbyPrex(g_pi_su, pi_prex, -1, 0, 1);
-		Boolean isVerify = pmacapp.verify(singlepmacValue, verifierComponent);
+		Boolean isVerify = pmacapp.verify(sigma_r[0], verifierComponent);
 		timer.stop();
 		System.out.println("Verifier time: \t\t" + timer.timeElapseinMs() + "ms");
 //			System.out.println("verifierComponent is \t\t\t" + verifierComponent);
@@ -119,13 +119,19 @@ public class PMACTester implements Serializable {
 
 		timer.reset();
 		// authenticator: generate aggregated PMAC
-		BigInteger aggregatedPMAC = pmacapp.generateTraPMAC(x, start, end);
+		BigInteger[] rs = new BigInteger[x.length];
+		BigInteger aggregatedPMAC = BigInteger.ONE;
+		for (int i = start; i <= end; i ++ ) {
+			BigInteger[] sigma_r = pmacapp.generatePMAC(x[i], t[i - 1], t[i], t[i + 1]);
+			aggregatedPMAC = aggregatedPMAC.multiply(sigma_r[0]).mod(pmacapp.n);
+			rs[i] = sigma_r[1];
+		}
 		timer.stop();
-		System.out.println("Authenticator time:\t" + timer.timeElapseinMs() + "ms");
+		System.out.println("Generator time:\t" + timer.timeElapseinMs() + "ms");
 		
 		// client: building VO= pre(x) + ??????t[i] + g^??????(su)mod p
 		timer.reset();
-		BigInteger tra_suffixEncry = pmacapp.generateTraGPiSu(x, start, end, d);
+		BigInteger tra_suffixEncry = pmacapp.generateTraGPiSu(x, rs, start, end, d);
 		timer.stop();
 		System.out.println("Client time: \t\t" + timer.timeElapseinMs() + "ms");
 		
@@ -142,6 +148,31 @@ public class PMACTester implements Serializable {
 		System.out.println("==========================================");
 	}
 
+	
+	public static void testTime() {
+		Timer timer = new Timer();
+		BigInteger res;
+		PMAC pmac = new PMAC(); pmac.initKey();
+		int times = 1000;
+		System.out.println("Testing getPsiTime: ");
+		timer.reset();
+		for (int i = 0; i < times; i ++) {
+			res = pmac.getPsiTime(1, 2, 3, 4);
+		}
+		timer.stop();
+		System.out.println("Timer consume: " + timer.timeElapseinMs() / times + " ms");
+		
+		BigInteger[] sigma_r = new BigInteger[2];
+		String x = "01001011100011100110001000010110";
+		System.out.println("Testing generatePMAC: ");
+		timer.reset();
+		for (int i = 0; i < times; i ++) {
+			sigma_r = pmac.generatePMAC(x, 1, 2, 3);
+		}
+		timer.stop();
+		System.out.println("Timer consume: " + timer.timeElapseinMs() / times + " ms");
+	}
+	
 	/**
 	 * The main function
 	 * 
@@ -151,6 +182,8 @@ public class PMACTester implements Serializable {
 
 	public static void main(String[] args) throws IOException {
 
+		testTime();
+		
 		String x = "01001011100011100110001000010110";
 		String[] xs0 = { 
 //				"",
