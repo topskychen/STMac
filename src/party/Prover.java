@@ -68,10 +68,10 @@ public class Prover extends PMAC{
 	 * @param client
 	 * @return
 	 */
-	public VO prepareVO(Query query, int start, int end) {
+	public VO prepareVO(Query query) {
 		// TODO Auto-generated method stub
 		VO vo = new VO();
-		vo.prepare(this, trajectory, query, start, end);
+		vo.prepare(this, trajectory, query);
 		return vo;
 	}
 }

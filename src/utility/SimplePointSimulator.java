@@ -16,7 +16,7 @@ import crypto.VO;
  * @author chenqian
  *
  */
-public class SinglePointSimulator extends Simulator {
+public class SimplePointSimulator extends Simulator {
 
 	/**
 	 * Constructor
@@ -24,7 +24,7 @@ public class SinglePointSimulator extends Simulator {
 	 * @param client
 	 * @param verifier
 	 */
-	public SinglePointSimulator(Generator authenticator, Prover client, Verifier verifier) {
+	public SimplePointSimulator(Generator authenticator, Prover client, Verifier verifier) {
 		// TODO Auto-generated constructor stub
 		super(authenticator, client, verifier);
 	}
@@ -38,8 +38,9 @@ public class SinglePointSimulator extends Simulator {
 //		Authenticator authenticator = new Authenticator();
 //		Client client = new Client();
 //		Verifier verifier = new Verifier();
-		Trajectory trajectory = new Trajectory("01001011100011100110001000010110");
-		Query query = new Query("0", 1, 2);
+		Trajectory trajectory = new Trajectory(new String[]{"", "0000", "0001", "0010", "0011"}, new int[] {0, 1, 5, 10, 14, 50});
+//		System.out.println(trajectory.toString());
+		Query query = new Query("0", 1, 15);
 		run(trajectory, query);
 	}
 
@@ -51,13 +52,13 @@ public class SinglePointSimulator extends Simulator {
 		 * Client requests the PMAC for a point.
 		 */
 //		String x = "0011";
-		client.requestPMAC(trajectory, authenticator, 1, 1);
+		client.requestPMAC(trajectory, authenticator, 1, trajectory.length());
 		
 		/**
 		 * Request VO from the client
 		 */
 //		Query query = new Query("00");
-		VO vo = client.prepareVO(query, 1, 1);
+		VO vo = client.prepareVO(query);
 		
 		/**
 		 * Verify the VO.
@@ -82,7 +83,7 @@ public class SinglePointSimulator extends Simulator {
 		Generator authenticator = new Generator();
 		Prover client = new Prover();
 		Verifier verifier = new Verifier();
-		SinglePointSimulator singlePointSimulator = new SinglePointSimulator(authenticator, client, verifier);
+		SimplePointSimulator singlePointSimulator = new SimplePointSimulator(authenticator, client, verifier);
 		singlePointSimulator.init();
 		singlePointSimulator.run();
 		System.out.println(singlePointSimulator.toString());;

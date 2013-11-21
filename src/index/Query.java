@@ -12,12 +12,12 @@ public class Query {
 	
 	private int queryType;
 	String range;
-	int start, end;
+	int lBound, rBound;
 	
-	public Query(String range, int start, int end) {
+	public Query(String range, int lBound, int rBound) {
 		this.range = range;
-		this.start = start;
-		this.end = end;
+		this.lBound = lBound;
+		this.rBound = rBound;
 	}
 
 
@@ -44,25 +44,30 @@ public class Query {
 		this.range = range;
 	}
 
-	public int getStart() {
-		return start;
+
+	public int getlBound() {
+		return lBound;
 	}
 
-	public void setStart(int start) {
-		this.start = start;
+
+	public void setlBound(int lBound) {
+		this.lBound = lBound;
 	}
 
-	public int getEnd() {
-		return end;
+
+	public int getrBound() {
+		return rBound;
 	}
 
-	public void setEnd(int end) {
-		this.end = end;
-	}	
+
+	public void setrBound(int rBound) {
+		this.rBound = rBound;
+	}
+
 
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
-		sb.append(range + ", [" + start + ", " + end  + "]");
+		sb.append(range + ", [" + lBound + ", " + rBound  + "]");
 		return sb.toString();
 	}
 

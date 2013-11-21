@@ -120,12 +120,18 @@ public class Trajectory{
 		return locations.length - 1;
 	}
 	
+	/**
+	 * Given lBound and rBound, return the range in time stamps.
+	 * @param lBound
+	 * @param rBound
+	 * @return
+	 */
 	public int[] getTimeRange(int lBound, int rBound) {
 		int l = -1, r = -1;
 		for (int i = 1; i <= length(); i ++) {
-			if (l == -1 && getTimeStamp(i) > lBound) l = i;
-			if (r == -1 && getTimeStamp(i) > rBound) {
-				r = i - 1;
+			if (getTimeStamp(i - 1) < lBound && getTimeStamp(i) >= lBound) l = i;
+			if (getTimeStamp(i + 1) > rBound && getTimeStamp(i) <= rBound) {
+				r = i;
 				break;
 			}
 		}

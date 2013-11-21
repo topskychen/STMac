@@ -35,16 +35,16 @@ public class VO {
 	/**
 	 * Prepare the VO
 	 */
-	public void prepare(PMAC pmac, Trajectory tra, Query query, int lBound, int rBound) {
+	public void prepare(PMAC pmac, Trajectory tra, Query query) {
 		timer.reset();
 		int d = query.getRange().length();
-		int[] bounds = tra.getTimeRange(lBound, rBound);
-		g_pi_su = pmac.generateTraGPiSu(tra.getLocations(), tra.getRs(), bounds[0], bounds[1], d);
-		sigma	= pmac.aggregatePMACs(tra, bounds[0], bounds[1]);
-		t1 = tra.getTimeStamp(bounds[0] - 1);
-		t2 = tra.getTimeStamp(bounds[0]);
-		t3 = tra.getTimeStamp(bounds[1]);
-		t4 = tra.getTimeStamp(bounds[1] + 1);
+		int[] range = tra.getTimeRange(query.getlBound(), query.getrBound());
+		g_pi_su = pmac.generateTraGPiSu(tra.getLocations(), tra.getRs(), range[0], range[1], d);
+		sigma	= pmac.aggregatePMACs(tra, range[0], range[1]);
+		t1 = tra.getTimeStamp(range[0] - 1);
+		t2 = tra.getTimeStamp(range[0]);
+		t3 = tra.getTimeStamp(range[1]);
+		t4 = tra.getTimeStamp(range[1] + 1);
 		timer.stop();
 		prepareTime = timer.timeElapseinMs();
 	}
@@ -94,7 +94,7 @@ public class VO {
 		StringBuffer sb = new StringBuffer("");
 		sb.append("PrepareTime: " + prepareTime + "ms\n");
 		sb.append("VerifyTime: " + verifyTime + "ms\n");
-		sb.append("Time Range: [" + t2 + ", " + t3 +"]");
+		sb.append("Time Range: [(" + t1 + "," + t2 + "), (" + t3 + "," + t4 +")]");
 		return sb.toString();
 	}
 	
