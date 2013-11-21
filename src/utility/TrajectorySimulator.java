@@ -35,8 +35,8 @@ public class TrajectorySimulator extends Simulator {
 		/**
 		 * Initialize the keys
 		 */
-		authenticator.initClientKey(client);
-		authenticator.initVerifierKey(verifier);
+		generator.initClientKey(prover);
+		generator.initVerifierKey(verifier);
 		
 //		client
 	}
