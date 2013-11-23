@@ -173,6 +173,17 @@ public class PMACTester implements Serializable {
 		System.out.println("Timer consume: " + timer.timeElapseinMs() / times + " ms");
 	}
 	
+	public static void testincreGPiSu() {
+		String x = "01001011100011100110001000010110";
+		PMAC pmacapp = new PMAC(); pmacapp.initKey();
+		BigInteger g_pi_su1 = pmacapp.generateGPiSu(x, Constants.PRIME_P, 3);
+		BigInteger g_pi_su2 = pmacapp.generateGPiSu(x, Constants.PRIME_P, 5);
+		if (pmacapp.increGPiSu("01001", g_pi_su2, 3).equals(g_pi_su1)) {
+			System.out.println("testincreGPiSu pass.");
+		} else {
+			System.out.println("testincreGPiSu fail.");
+		}
+	}
 	/**
 	 * The main function
 	 * 
@@ -215,6 +226,7 @@ public class PMACTester implements Serializable {
 		}
 		xs[0] = "";
 		vo.trajectoryVerify(q, 1, 998, xs, t);
+		testincreGPiSu();
 	}
 
 }

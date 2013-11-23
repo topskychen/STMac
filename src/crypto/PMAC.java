@@ -141,6 +141,16 @@ public class PMAC {
 		return g.modPow(generatePiSu(su, d).multiply(r), n);
 	}
 
+	/**
+	 * Increment g_pi_su
+	 * @param su
+	 * @param g_pi_su
+	 * @param d
+	 * @return
+	 */
+	public BigInteger increGPiSu(String su, BigInteger g_pi_su, int d) {
+		return g_pi_su.modPow(generatePiSu(su, d), n);
+	}
 	
 	/**
 	 * @param su[]
@@ -162,11 +172,27 @@ public class PMAC {
 		return result;
 	}
 	
+	/**
+	 * 
+	 * @param su
+	 * @param rs
+	 * @param start
+	 * @param end
+	 * @param d
+	 * @return
+	 */
 	public BigInteger generateTraGPiSu(String[] su, BigInteger[] rs, int start, int end, int d) {
 		checkInitKeys();
 		return g.modPow(generateTraPiSu(su, rs, start, end, d), n);
 	}
 
+	public BigInteger increTraGPiSu(String[] su, BigInteger[] g_pi_sus, int start, int end, int d) {
+		BigInteger ans = BigInteger.ONE;
+		for (int i = start; i <= end; i ++) {
+			ans.multiply(increGPiSu(su[i], g_pi_sus[i], d)).mod(n);
+		}
+		return ans;
+	} 
 
 	/**
 	 * 
@@ -365,7 +391,7 @@ public class PMAC {
 		String x = "01110011100011100110001000010110";
 		System.out.println("Encrypted message is: " + x);
 		BigInteger sigma = pmac.generatePMAC(x, 0, 1, 2)[0];
-		System.out.println("The PMAC value is " + sigma);	
+		System.out.println("The PMAC value is " + sigma);
 
 	}
 
