@@ -17,7 +17,7 @@ import IO.RW;
  * @author chenqian
  *
  */
-public class RInnerNode extends RW {
+public class RInnerNode implements RW {
 
 	String prex 		= null;
 	BigInteger g_pi_su 	= null;

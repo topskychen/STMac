@@ -25,7 +25,7 @@ import crypto.PMAC;
  * @author chenqian
  *
  */
-public class Trajectory extends RW{
+public class Trajectory implements RW{
 
 	String[] locations 	= null;
 	int[]	timeStamps 	= null; 
@@ -177,8 +177,8 @@ public class Trajectory extends RW{
 		return true;
 	}
 	
-	public LeafData getLeafData(int p) {
-		return new LeafData(locations[p], timeStamps[p - 1], timeStamps[p], timeStamps[p + 1], sigmas[p], rs[p]);
+	public BData getLeafData(int p, PMAC pmac) {
+		return new BData(locations[p], timeStamps[p - 1], timeStamps[p], timeStamps[p + 1], sigmas[p], rs[p], pmac);
 	}
 
 	@Override

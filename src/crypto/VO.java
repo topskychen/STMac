@@ -3,9 +3,8 @@
  */
 package crypto;
 
-import index.BInnerData;
+import index.BData;
 import index.Data;
-import index.LeafData;
 import index.Query;
 import index.SearchIndex;
 import index.Trajectory;
@@ -57,17 +56,7 @@ public class VO {
 		prepareTime = timer.timeElapseinMs();
 	}
 	
-	public VOCell prepareFromLeafData(PMAC pmac, LeafData data, Query query) {
-		VOCell voCell = new VOCell(data.getSigma(), 
-				pmac.generateGPiSu(data.getLocation(), data.getR(), query.getRange().length()), 
-				data.getT1(), 
-				data.getT2(), 
-				data.getT2(), 
-				data.getT3());
-		return voCell;
-	}
-	
-	public VOCell prepareBInnerData(PMAC pmac, BInnerData data, Query query) {
+	public VOCell prepareBData(PMAC pmac, BData data, Query query) {
 		VOCell voCell = new VOCell(data.getSigma(), 
 				pmac.increGPiSu(data.getPrex(), data.getG_pi_su(), query.getRange().length()), 
 				data.getT1(), 
@@ -87,11 +76,7 @@ public class VO {
 		timer.reset();
 		ArrayList<Data> datas = index.rangeQuery(query);
 		for (Data data : datas) {
-			if (data instanceof LeafData) {
-				voCells.add(prepareFromLeafData(pmac, (LeafData)data, query));
-			} else {
-				voCells.add(prepareBInnerData(pmac, (BInnerData)data, query));
-			}
+			voCells.add(prepareBData(pmac, (BData)data, query));
 		}
 		timer.stop();
 		prepareTime = timer.timeElapseinMs();
@@ -107,8 +92,10 @@ public class VO {
 		for (VOCell voCell : voCells) {
 			if (!voCell.verify(pmac, query)) {
 				isVerify = false;
+//				System.out.println("fail");
 				break;
-			} //else {
+			} 
+//			else {
 //				System.out.println("pass");
 //			}
 //			if (voCell.t2 == voCell.t3) {
@@ -137,10 +124,10 @@ public class VO {
 		StringBuffer sb = new StringBuffer("");
 		sb.append("PrepareTime: " + prepareTime + "ms\n");
 		sb.append("VerifyTime: " + verifyTime + "ms\n");
-		sb.append("VOSize: " + voSize + "bytes, " + voSize / 1024 + " KB\n");
+		sb.append("VOSize: " + voSize + "bytes, " + voSize / 1024.0 + " KB\n");
 		if(!precise){
 			for (int i = 0; i < voCells.size(); i ++) {
-				sb.append(voCells.get(i).toString());
+				sb.append((i + 1)  + " [ " + voCells.get(i).toString() + " ]\n");
 			}
 		}
 		return sb.toString();
@@ -242,7 +229,7 @@ public class VO {
 			StringBuffer sb = new StringBuffer();
 //			sb.append(sigma + "\n");
 //			sb.append(g_pi_su + "\n");
-			sb.append(t1 + ", " + t2 + ", " + t3 + ", " + t4 + "\n");
+			sb.append(t1 + "|" + t2 + ", " + t3 + "|" + t4);
 			return sb.toString();
 		}
 	}

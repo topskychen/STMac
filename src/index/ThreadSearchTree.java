@@ -19,29 +19,42 @@ import bptree.Node;
  * @param <K>
  *
  */
-public class ThreadSearchTree extends SearchIndex{
+public class ThreadSearchTree extends BPlusTree implements SearchIndex{
 
-	BPlusTree<Long, Data> bptree = null;
+//	BPlusTree<Long, Data> bptree = null;
+	
+	public ThreadSearchTree(){}
 	
 	public ThreadSearchTree(BPlusTree<Long, Data> bptree) {
-		this.bptree = bptree;
+		super(bptree);
 	}
 
-	public static ThreadSearchTree leadTree(String[] args) {
-		return new ThreadSearchTree(BPlusTree.loadBPTree(new Object[]{args[0], LeafData.class, BInnerData.class}));
+	public void leadTree(Object[] args) {
+		copy(BPlusTree.loadBPTree(new Object[]{args[0], args[1], args[2]}));
 	}
 	
-	public static ThreadSearchTree createTree(String[] args) {
+	public void createTree(Object[] args) {
 		try {
-//			return (ThreadSearchTree) BPlusTree.createBPTree(new Object[] {"./database/btree", new Integer(5), new Integer(6), RW.class});
-			return new ThreadSearchTree(BPlusTree.createBPTree(new Object[] {args[0], Integer.parseInt(args[1]), Integer.parseInt(args[2]), LeafData.class, BInnerData.class}));
-		} catch (SecurityException | NullPointerException
-				| IllegalArgumentException
-				| IOException e) {
+			copy(BPlusTree.createBPTree(new Object[] {args[0] , args[1], args[2], args[3], args[4]}));
+		} catch (NumberFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NullPointerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return null; 
 	}
 
 	
@@ -54,10 +67,10 @@ public class ThreadSearchTree extends SearchIndex{
 		if (tra.checkTrajectory() == false) 
 			throw new IllegalStateException("The pmac for trajectory is not complete.");
 		for (int i = 1; i <= tra.length(); i ++) {
-			bptree.put(new Long(tra.getTimeStamp(i)), tra.getLeafData(i));
+			put(new Long(tra.getTimeStamp(i)), tra.getLeafData(i, pmac));
 		}
-		buildIndexData(bptree.getRoot(), pmac);
-		bptree.flush();
+		buildIndexData(getRoot(), pmac);
+		flush();
 	}
 	
 	/**
@@ -69,13 +82,14 @@ public class ThreadSearchTree extends SearchIndex{
 		
 		if (n.isInnerNode()) {
 			for (int i = 0; i < n.getSlots() + 1; i ++) {
-				Node<Long, Data> cur = bptree.readNode(((InnerNode<Long, Data>)n).getChildId(i));
+				Node<Long, Data> cur = readNode(((InnerNode<Long, Data>)n).getChildId(i));
 				if (!cur.isLeafNode()) {
 					buildIndexData(cur, pmac);
-				}
-				n.setValue(new BInnerData(cur.getValues(), cur.getSlots(), pmac), i);
+					n.setValue(new BData(cur.getValues(), cur.getSlots() + 1, pmac), i);
+				} else 
+					n.setValue(new BData(cur.getValues(), cur.getSlots(), pmac), i);
 			}
-			bptree.writeNode(n);
+			writeNode(n);
 		} else {
 			throw new IllegalStateException("The leaf node is not possilble to be visited.");
 		}
@@ -83,7 +97,7 @@ public class ThreadSearchTree extends SearchIndex{
 	
 	public ArrayList<Data> rangeQuery(Query query) {
 		RangeQueryStrategy rangeQueryStrategy = new RangeQueryStrategy(query.getlBound(), query.getrBound());
-		bptree.queryStrategy(rangeQueryStrategy);
+		queryStrategy(rangeQueryStrategy);
 		return rangeQueryStrategy.getResults();
 	} 
 	
@@ -98,7 +112,7 @@ public class ThreadSearchTree extends SearchIndex{
 	@Override
 	public String toString() {
 		// TODO Auto-generated method stub
-		return bptree.toString();
+		return toString();
 	}
 	
 	class RangeQueryStrategy implements IQueryStrategy {
@@ -124,13 +138,13 @@ public class ThreadSearchTree extends SearchIndex{
 			// TODO Auto-generated method stub
 			if (n instanceof LeafNode){				
 				for (int i = 0; i < n.getSlots(); i ++) {
-					if (visitLeafData((LeafData) n.getValue(i))) {
+					if (visitInnerData((BData) n.getValue(i))) {
 						// do nothing
 					}
 				}
 			} else {
 				for (int i = 0; i < n.getSlots() + 1; i ++) {
-					if (visitInnerData((BInnerData) n.getValue(i))) {
+					if (visitInnerData((BData) n.getValue(i))) {
 						toVisit.add(((InnerNode) n).getChildId(i));
 					}
 				}
@@ -143,24 +157,13 @@ public class ThreadSearchTree extends SearchIndex{
 			}
 		}
 		
-		/**
-		 * 
-		 * @param data
-		 * @return
-		 */
-		public boolean visitLeafData(LeafData data) {
-			if (data.t2 >= lBound && data.t2 <= rBound) {
-				results.add(data);
-			}
-			return false;
-		}
 		
 		/**
 		 * 
 		 * @param data
 		 * @return
 		 */
-		public boolean visitInnerData(BInnerData data) {
+		public boolean visitInnerData(BData data) {
 			if (data.t2 >= lBound && data.t3 <= rBound) {
 				results.add(data);
 				return false;

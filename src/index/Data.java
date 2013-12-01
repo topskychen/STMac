@@ -12,7 +12,7 @@ import IO.RW;
  * @author chenqian
  *
  */
-public class Data extends RW {
+public class Data implements RW {
 
 	/**
 	 * 

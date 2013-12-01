@@ -15,7 +15,7 @@ import storagemanager.PropertySet;
  * @author chenqian
  *
  */
-public class GeneralSearchTree extends SearchIndex {
+public class GeneralSearchTree implements SearchIndex {
 
 	RTree rtree = null;
 	
@@ -42,6 +42,18 @@ public class GeneralSearchTree extends SearchIndex {
 
 	@Override
 	public void buildIndex(Trajectory tra, PMAC pmac) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void leadTree(String[] args) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void createTree(String[] args) {
 		// TODO Auto-generated method stub
 		
 	}

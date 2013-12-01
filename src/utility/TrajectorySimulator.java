@@ -41,9 +41,8 @@ public class TrajectorySimulator extends Simulator {
 		
 //		Trajectory trajectory = new Trajectory(); trajectory.prepare(fileNames[0]);
 		prover.prepareTraPMAC(fileNames[0], fileNames[1], generator);
-		prover.prepareIndex(fileNames[2], generator, SearchIndex.ThreadSearchTree);
+		prover.prepareIndex(fileNames[2], generator, SearchIndex.BinarySearchTree);
 	
-		
 //		System.out.println(generator.toString());
 //		System.out.println(prover.toString());
 //		System.out.println(verifier.toString());

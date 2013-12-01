@@ -11,6 +11,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import index.BData;
+import index.BinarySearchTree;
 import index.Query;
 import index.SearchIndex;
 import index.ThreadSearchTree;
@@ -85,21 +87,26 @@ public class Prover extends PMAC{
 	 * @param indexType
 	 */
 	public void prepareIndex(String fileName, Generator generator, int indexType) {
+		File file = null;
 		if (indexType == SearchIndex.ThreadSearchTree) {
-			File file = new File(fileName + ".idx");
-			if (file.exists()) {
-				index = ThreadSearchTree.leadTree(new String[]{fileName});
-			} else {
-				index = ThreadSearchTree.createTree(new String[]{fileName, "5", "6"});
-				index.buildIndex(trajectory, this);
-			}
+			file = new File(fileName + ".idx");
+			index = new ThreadSearchTree();
 //			System.out.println(index.toString());
 		} else if (indexType == SearchIndex.GeneralSearchTree) {
-			
+		} else if (indexType == SearchIndex.BinarySearchTree) {
+			file = new File(fileName + ".bin.dat");
+			index = new BinarySearchTree(BData.class);
 		} else {
 			throw new IllegalStateException("No such index type.");
 		}
-		System.out.println("Index is loaded/built.");
+		if (file.exists()) {
+			index.leadTree(new Object[]{fileName, BData.class, BData.class});
+			System.out.println("Index is loaded.");
+		} else {
+			index.createTree(new Object[]{fileName, "5", "6", BData.class, BData.class});
+			index.buildIndex(trajectory, this);
+			System.out.println("Index is built.");
+		}
 	}
 	
 	/**
@@ -111,8 +118,8 @@ public class Prover extends PMAC{
 		this.g = pmac.g;
 		this.n = pmac.n;
 		this.e = pmac.e;
-//		this.sk = pmac.sk;
-//		this.phi_n = pmac.phi_n;// this is only for testing
+		this.sk = pmac.sk;
+		this.phi_n = pmac.phi_n;// this is only for testing
 		this.mappingTable = pmac.mappingTable;
 	}
 

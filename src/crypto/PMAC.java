@@ -13,7 +13,7 @@ import IO.RW;
  * This program calculates the PMAC value of given string x.
  * 
   */
-public class PMAC extends RW{
+public class PMAC implements RW{
 
 	/**
 	 * Here note n is composed of two large primes.
