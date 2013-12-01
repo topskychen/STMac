@@ -5,16 +5,15 @@ import index.Trajectory;
 import java.math.*;
 import java.util.*;
 import java.io.*;
-import java.io.ObjectInputStream.GetField;
 
-import timer.Timer;
 import IO.DataIO;
+import IO.RW;
 
 /**
  * This program calculates the PMAC value of given string x.
  * 
   */
-public class PMAC {
+public class PMAC extends RW{
 
 	/**
 	 * Here note n is composed of two large primes.
@@ -31,20 +30,43 @@ public class PMAC {
 	private final static int CVALUE = 2;
 
 	private int bitLength;
+//	
+//	private final static int T_START = 1; // time stamp begins from 1, not 0
+//	private final static int T_END = 8;
 	
-	private final static int T_START = 1; // time stamp begins from 1, not 0
-	private final static int T_END = 8;
-
 	int[] t; // timestamp array
 
 	public BigInteger[][] mappingTable = null;
+	
+	static {
+		Hasher.setInstance("MD5");
+	}
 	
 	/**
 	 * Constructs an instance of the PMAC with BITLENGTH of modulus and at least
 	 * 1-2^(-CERTAINTY) certainty of primes generation.
 	 */
-
 	public PMAC() {
+	}
+	
+	public PMAC(String fileName) {
+		File file = new File(fileName);
+		if (file.exists()) {
+			try {
+				read(new DataInputStream(new FileInputStream(file)));
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}else {
+			initKey();
+			try {
+				write(new DataOutputStream(new FileOutputStream(file)));
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	public PMAC(int[] _t) {
@@ -143,9 +165,13 @@ public class PMAC {
 
 	/**
 	 * Increment g_pi_su
+	 * 
 	 * @param su
+	 * 				old prex
 	 * @param g_pi_su
+	 * 				
 	 * @param d
+	 * 				length of new prex
 	 * @return
 	 */
 	public BigInteger increGPiSu(String su, BigInteger g_pi_su, int d) {
@@ -189,7 +215,7 @@ public class PMAC {
 	public BigInteger increTraGPiSu(String[] su, BigInteger[] g_pi_sus, int start, int end, int d) {
 		BigInteger ans = BigInteger.ONE;
 		for (int i = start; i <= end; i ++) {
-			ans.multiply(increGPiSu(su[i], g_pi_sus[i], d)).mod(n);
+			ans = ans.multiply(increGPiSu(su[i], g_pi_sus[i], d)).mod(n);
 		}
 		return ans;
 	} 
@@ -246,7 +272,20 @@ public class PMAC {
 	 * 
 	 * */
 	public BigInteger generatePMACbyPrex(BigInteger g_pi_su, BigInteger pi_prex, int t1, int t2, int t3){
-		return g_pi_su.modPow(pi_prex, n).multiply(g.modPow(getPsiTime(t1, t2, t2, t3), n)).mod(n);
+		return generatePMACbyPrex(g_pi_su, pi_prex, t1, t2, t2, t3);
+	}
+	
+	/**
+	 * compute PMAC by pre
+	 * @param g_pi_su
+	 * 					g^pi(su)
+	 * @param pi_prex 
+	 * 					pi(pre(x))
+	 * @return PMAC
+	 * 
+	 * */
+	public BigInteger generatePMACbyPrex(BigInteger g_pi_su, BigInteger pi_prex, int t1, int t2, int t3, int t4){
+		return g_pi_su.modPow(pi_prex, n).multiply(g.modPow(getPsiTime(t1, t2, t3, t4), n)).mod(n);
 	}
 	
 	/**
@@ -270,7 +309,7 @@ public class PMAC {
 	
 	public void generatePMAC(Trajectory tra, int start, int end) {
 		BigInteger[] sigma_r = new BigInteger[2];
-		for (int i = start; i <= end; i++ ) {
+		for (int i = start; i <= end; i ++ ) {
 			sigma_r = generatePMAC(tra.getLocation(i), 
 					tra.getTimeStamp(i - 1), tra.getTimeStamp(i), tra.getTimeStamp(i + 1));
 			tra.setSigma(i, sigma_r[0]);
@@ -289,20 +328,20 @@ public class PMAC {
 		return aggPMAC;
 	}
 	
-	/**
-	 * compute PMAC by pre
-	 * @param g_pi_su
-	 * 					g^pi(su)
-	 * @param pi_prex 
-	 * 					pi(pre(x))
-	 * @return PMAC
-	 * 
-	 * */
-	public BigInteger generateTraPMACbyPrex(BigInteger g_pi_su, BigInteger pi_prex, int t1, int t2, int t3, int t4){
-		BigInteger res = g_pi_su.modPow(pi_prex, n);
-		BigInteger res2 = g.modPow(getPsiTime(t1, t2, t3, t4), n);
-		return res.multiply(res2).mod(n);
-	}
+//	/**
+//	 * compute PMAC by pre
+//	 * @param g_pi_su
+//	 * 					g^pi(su)
+//	 * @param pi_prex 
+//	 * 					pi(pre(x))
+//	 * @return PMAC
+//	 * 
+//	 * */
+//	public BigInteger generateTraPMACbyPrex(BigInteger g_pi_su, BigInteger pi_prex, int t1, int t2, int t3, int t4){
+//		BigInteger res = g_pi_su.modPow(pi_prex, n);
+//		BigInteger res2 = g.modPow(getPsiTime(t1, t2, t3, t4), n);
+//		return res.multiply(res2).mod(n);
+//	}
 	
 //	public BigInteger generateTraPMAC(String x[], int start, int end) {
 ////		BigInteger pmac[] = new BigInteger[end - start];
@@ -351,7 +390,7 @@ public class PMAC {
 		/**
 		 * Set the instance of Hasher to MD5, since it is 16 bytes, we use the digest as the input of AES.
 		 */
-		Hasher.setInstance("MD5");
+//		Hasher.setInstance("MD5");
 		/**
 		 * store g, r, p in the array key for future use, any better assignment
 		 * form?
@@ -370,8 +409,18 @@ public class PMAC {
 
 	public String toString() {
 		StringBuffer sb = new StringBuffer("");
-		sb.append("public g is " + g + "\n");
-		sb.append("public n is " + n + "\n");
+		sb.append("n: " + n + "\n");
+		sb.append("g: " + g + "\n");
+		sb.append("e: " + e + "\n");
+		sb.append("phi_n: " + phi_n + "\n");
+		sb.append("d: " + d + "\n");
+		sb.append("sk: " + DataIO.toHexFromBytes(sk) + "\n");
+//		for (int i = 0; i < MVALUE; i ++) {
+//			for (int j = 0; j < CVALUE; j ++) {
+//				sb.append(mappingTable[i][j] + ", ");
+//			}
+//			sb.append("\n");
+//		}
 		return sb.toString();
 	}
 	
@@ -386,13 +435,90 @@ public class PMAC {
 	 */
 	public static void main(String[] args) throws IOException {
 		// TODO Auto-generated method stub
-		
-		PMAC pmac = new PMAC(); pmac.initKey();
+		PMAC pmac = new PMAC("./database/pmac.keys"); //pmac.initKey();
 		String x = "01110011100011100110001000010110";
 		System.out.println("Encrypted message is: " + x);
 		BigInteger sigma = pmac.generatePMAC(x, 0, 1, 2)[0];
 		System.out.println("The PMAC value is " + sigma);
-
+		System.out.println(pmac.hashCode());
+		pmac = new PMAC("./database/pmac.keys");
+		System.out.println(pmac.hashCode());
 	}
 
+	@Override
+	public void read(DataInputStream ds){
+		// TODO Auto-generated method stub
+		n = DataIO.readBigInteger(ds);
+		g = DataIO.readBigInteger(ds);
+		e = DataIO.readBigInteger(ds);
+		phi_n = DataIO.readBigInteger(ds);
+		d = DataIO.readBigInteger(ds);
+		sk = DataIO.readBytes(ds);
+		mappingTable = new BigInteger[MVALUE][CVALUE];
+		for (int i = 0; i < MVALUE; i ++) {
+			for (int j = 0; j < CVALUE; j ++) {
+				mappingTable[i][j] = DataIO.readBigInteger(ds);
+			}
+		}
+		try {
+			bitLength = ds.readInt();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+	}
+
+	@Override
+	public void write(DataOutputStream ds) {
+		// TODO Auto-generated method stub
+		DataIO.writeBigInteger(ds, n);
+		DataIO.writeBigInteger(ds, g);
+		DataIO.writeBigInteger(ds, e);
+		DataIO.writeBigInteger(ds, phi_n);
+		DataIO.writeBigInteger(ds, d);
+		DataIO.writeBytes(ds, sk);
+		for (int i = 0; i < MVALUE; i ++) {
+			for (int j = 0; j < CVALUE; j ++) {
+				DataIO.writeBigInteger(ds, mappingTable[i][j]);
+			}
+		}
+		try {
+			ds.writeInt(bitLength);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+	}
+
+	@Override
+	public void loadBytes(byte[] data) {
+		// TODO Auto-generated method stub
+		DataInputStream ds = new DataInputStream(new ByteArrayInputStream(data));
+		read(ds);
+	}
+
+	@Override
+	public byte[] toBytes() {
+		// TODO Auto-generated method stub
+		ByteArrayOutputStream bs = new ByteArrayOutputStream();
+		DataOutputStream ds = new DataOutputStream(bs);
+		write(ds);
+		return bs.toByteArray();
+	}
+
+	public int hashCode() {
+		int hash = 1;
+		hash = hash * 31 + n.hashCode();
+		hash = hash * 31 + g.hashCode();
+		hash = hash * 31 + e.hashCode();
+		hash = hash * 31 + phi_n.hashCode();
+		hash = hash * 31 + d.hashCode();
+		hash = hash * 31 + new String(sk).hashCode();
+		for (int i = 0; i < MVALUE; i ++) {
+			for (int j = 0; j < CVALUE; j++) {
+				hash = hash * 31 + mappingTable[i][j].hashCode();
+			}
+		}
+		return hash;
+	}
 }

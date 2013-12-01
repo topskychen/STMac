@@ -4,8 +4,20 @@
 package index;
 
 import java.awt.Container;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.math.BigInteger;
+import java.util.Scanner;
 
+import IO.DataIO;
+import IO.RW;
 import crypto.Constants;
 import crypto.PMAC;
 
@@ -13,7 +25,7 @@ import crypto.PMAC;
  * @author chenqian
  *
  */
-public class Trajectory{
+public class Trajectory extends RW{
 
 	String[] locations 	= null;
 	int[]	timeStamps 	= null; 
@@ -23,6 +35,7 @@ public class Trajectory{
 	public String getLocation() {
 		return locations[0];
 	}
+	
 	
 	public Trajectory(String[] locations, int[] timeStamps) {
 		super();
@@ -155,6 +168,112 @@ public class Trajectory{
 		}
 		sb.append("]");
 		return sb.toString();
+	}
+	
+	public boolean checkTrajectory() {
+		for (int i = 1; i <= length(); i ++ ) {
+			if (getSigma(i) == null) return false;
+		}
+		return true;
+	}
+	
+	public LeafData getLeafData(int p) {
+		return new LeafData(locations[p], timeStamps[p - 1], timeStamps[p], timeStamps[p + 1], sigmas[p], rs[p]);
+	}
+
+	@Override
+	public void read(DataInputStream ds) {
+		// TODO Auto-generated method stub
+		try {
+			int len = ds.readInt();
+			locations = new String[len];
+			for (int i = 1; i <= length(); i ++) {
+				locations[i] = DataIO.readString(ds);
+			}
+			timeStamps = new int[len + 1];
+			for (int i = 1; i <= length(); i ++) {
+				timeStamps[i] = ds.readInt();
+			}
+			timeStamps[0] = Integer.MIN_VALUE;
+			timeStamps[len] = Integer.MAX_VALUE;
+			sigmas = new BigInteger[len];
+			for (int i = 1; i <= length(); i ++) {
+				sigmas[i] = DataIO.readBigInteger(ds);
+			} 
+			rs = new BigInteger[len];
+			for (int i = 1; i <= length(); i ++) {
+				rs[i] = DataIO.readBigInteger(ds);
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+
+	@Override
+	public void write(DataOutputStream ds) {
+		// TODO Auto-generated method stub
+		try {
+			ds.writeInt(locations.length);
+			for (int i = 1; i <= length(); i ++) {
+				DataIO.writeString(ds, locations[i]);
+			}
+			for (int i = 1; i <= length(); i ++) {
+				ds.writeInt(timeStamps[i]);
+			}
+			for (int i = 1; i <= length(); i ++) {
+				DataIO.writeBigInteger(ds, sigmas[i]);
+			}
+			for (int i = 1; i <= length(); i ++) {
+				DataIO.writeBigInteger(ds, rs[i]);
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void loadBytes(byte[] data) {
+		// TODO Auto-generated method stub
+		DataInputStream ds = new DataInputStream(new ByteArrayInputStream(data));
+		read(ds);
+	}
+
+	@Override
+	public byte[] toBytes() {
+		// TODO Auto-generated method stub
+		ByteArrayOutputStream bs = new ByteArrayOutputStream();
+		DataOutputStream ds = new DataOutputStream(bs);
+		write(ds);
+		return bs.toByteArray();
+	}
+	
+	/**
+	 * Prepare location and timeStamps from file.
+	 * @param fileName
+	 */
+	public void prepare(String fileName) {
+		try {			
+			Scanner in = new Scanner(new File(fileName));
+			int len = Integer.parseInt(in.nextLine());
+			locations = new String[len + 1];
+			timeStamps = new int[len + 2];
+			sigmas = new BigInteger[len + 1];
+			rs = new BigInteger[len + 1];
+			for (int i = 1; i <= length(); i ++) {
+				String[] tks = in.nextLine().split("\t");
+				locations[i] = tks[0];
+				timeStamps[i] = Integer.parseInt(tks[1]);
+			}
+			timeStamps[0] = Integer.MIN_VALUE;
+			timeStamps[len + 1] = Integer.MAX_VALUE;
+			in.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 }

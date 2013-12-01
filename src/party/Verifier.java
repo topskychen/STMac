@@ -47,15 +47,16 @@ public class Verifier extends PMAC{
 		this.g = pmac.g;
 		this.n = pmac.n;
 		this.e = pmac.e;
-		this.d = pmac.d;
+//		this.d = pmac.d;
 		this.sk = pmac.sk;
 		this.phi_n = pmac.phi_n;
 		this.mappingTable = pmac.mappingTable;
 	}
 	
 	public String toString() {
-		StringBuffer sb = new StringBuffer("");
-		sb.append("q=" + query.toString());
+		StringBuffer sb = new StringBuffer("verifier: \n");
+		sb.append("q=" + query);
+		sb.append(super.toString());
 		return sb.toString();
 	}
 }

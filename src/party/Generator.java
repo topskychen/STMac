@@ -17,6 +17,10 @@ public class Generator extends PMAC{
 		this.initKey();
 	}
 	
+	public Generator(String fileName) {
+		super(fileName);
+	}
+	
 	/**
 	 * @param args
 	 */
@@ -43,5 +47,11 @@ public class Generator extends PMAC{
 		verifier.initKey(this);
 	}
 
+	
+	public String toString() {
+		StringBuffer sb = new StringBuffer("Generator: \n");
+		sb.append(super.toString());
+		return sb.toString();
+	}
 
 }

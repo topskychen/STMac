@@ -58,7 +58,7 @@ public class SimplePointSimulator extends Simulator {
 		 * Request VO from the client
 		 */
 //		Query query = new Query("00");
-		VO vo = prover.prepareVO(query);
+		VO vo = prover.prepareVOwithTrajectory(query);
 		
 		/**
 		 * Verify the VO.
@@ -72,7 +72,7 @@ public class SimplePointSimulator extends Simulator {
 		
 		preparationTime 	= vo.getPrepareTime();
 		verificationTime 	= vo.getVerifyTime();
-		voSize 				= vo.getVOinBytes().length;
+		voSize 				= vo.toBytes().length;
 	}
 	
 	/**
@@ -81,12 +81,12 @@ public class SimplePointSimulator extends Simulator {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		Generator authenticator = new Generator();
-		Prover client = new Prover();
+		Prover prover = new Prover();
 		Verifier verifier = new Verifier();
-		SimplePointSimulator singlePointSimulator = new SimplePointSimulator(authenticator, client, verifier);
+		SimplePointSimulator singlePointSimulator = new SimplePointSimulator(authenticator, prover, verifier);
 		singlePointSimulator.init();
 		singlePointSimulator.run();
-		System.out.println(singlePointSimulator.toString());;
+		System.out.println(singlePointSimulator.toString());
 	}
 
 

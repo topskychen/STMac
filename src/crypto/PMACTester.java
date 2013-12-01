@@ -138,7 +138,7 @@ public class PMACTester implements Serializable {
 		// verifier: compute PMAC out of VO, and compare
 		timer.reset();
 		BigInteger pi_prex = pmacapp.generatePix(pre);
-		BigInteger verifierComponent = pmacapp.generateTraPMACbyPrex(tra_suffixEncry, pi_prex, t[start - 1], t[start], t[end], t[end + 1]);
+		BigInteger verifierComponent = pmacapp.generatePMACbyPrex(tra_suffixEncry, pi_prex, t[start - 1], t[start], t[end], t[end + 1]);
 		Boolean isVerify = pmacapp.verify(aggregatedPMAC, verifierComponent);
 		timer.stop();
 		System.out.println("Verifier time: \t\t" + timer.timeElapseinMs() + "ms");
@@ -175,13 +175,20 @@ public class PMACTester implements Serializable {
 	
 	public static void testincreGPiSu() {
 		String x = "01001011100011100110001000010110";
-		PMAC pmacapp = new PMAC(); pmacapp.initKey();
-		BigInteger g_pi_su1 = pmacapp.generateGPiSu(x, Constants.PRIME_P, 3);
-		BigInteger g_pi_su2 = pmacapp.generateGPiSu(x, Constants.PRIME_P, 5);
-		if (pmacapp.increGPiSu("01001", g_pi_su2, 3).equals(g_pi_su1)) {
-			System.out.println("testincreGPiSu pass.");
+		String pre = "01001";
+		String pre2 = "0100";
+		String pre3 = "010";
+		String pre4 = "0";
+		PMAC pmac = new PMAC(); pmac.initKey();
+		BigInteger[] sigma_r = pmac.generatePMAC(x, -1, 0, 1);
+		BigInteger g_pi_su = pmac.generateGPiSu(x, sigma_r[1], pre.length());
+		g_pi_su = pmac.increGPiSu(pre, g_pi_su, pre2.length());
+		g_pi_su = pmac.increGPiSu(pre2, g_pi_su, pre3.length());
+		g_pi_su = pmac.increGPiSu(pre3, g_pi_su, pre4.length());
+		if (pmac.verify(sigma_r[0], pmac.generatePMACbyPrex(g_pi_su, pmac.generatePix(pre4), -1, 0, 1))) {
+			System.out.println("Pass testincreGPiSu");
 		} else {
-			System.out.println("testincreGPiSu fail.");
+			System.out.println("Fail testincreGPiSu");
 		}
 	}
 	/**
@@ -193,6 +200,7 @@ public class PMACTester implements Serializable {
 
 	public static void main(String[] args) throws IOException {
 
+		testincreGPiSu();
 		testTime();
 		
 		String x = "01001011100011100110001000010110";
@@ -209,6 +217,15 @@ public class PMACTester implements Serializable {
 				"01001011100011100110001000010001",
 				"01001011100011100110001000010110",
 		};
+		int times = 1000;
+		int[] t = new int[times];
+		String[] xs = new String[times];
+		for (int i = 0; i < times; i ++) {
+			t[i] = i + 1;
+			xs[i] = xs0[i % 10];
+//			System.out.println(xs[i] + "\t" + t[i]);
+		}
+		xs[0] = "";
 		System.out.print("the predicate q is: ");
 		String q = new BufferedReader(new InputStreamReader(System.in))
 				.readLine();
@@ -217,16 +234,7 @@ public class PMACTester implements Serializable {
 		PMACTester vo = new PMACTester();
 		vo.singlepointVerify(x, q);
 		
-		int times = 1000;
-		int[] t = new int[times];
-		String[] xs = new String[times];
-		for (int i = 0; i < times; i ++) {
-			t[i] = i;
-			xs[i] = xs0[i % 10]; 
-		}
-		xs[0] = "";
 		vo.trajectoryVerify(q, 1, 998, xs, t);
-		testincreGPiSu();
 	}
 
 }
