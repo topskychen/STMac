@@ -232,6 +232,15 @@ public class PMAC implements RW{
 	
 	/**
 	 * 
+	 * @param o
+	 * @return
+	 */
+	public BigInteger getPsiObject(Object o) {
+		return AES.encryptBI(sk, Hasher.hashBytes(o.toString().getBytes()));
+	}
+	
+	/**
+	 * 
 	 * @param t1
 	 * @param t2
 	 * @param t3
@@ -243,6 +252,19 @@ public class PMAC implements RW{
 		return getPsiTime(t2).subtract(getPsiTime(t1)).add(getPsiTime(t3)).subtract(getPsiTime(t4)).mod(phi_n);
 	}
 
+	/**
+	 * 
+	 * @param o1
+	 * @param o2
+	 * @param o3
+	 * @param o4
+	 * @return
+	 */
+	public BigInteger getPsiObject(Object o1, Object o2, Object o3, Object o4) {
+//		return BigInteger.ONE;
+		return getPsiObject(o2).subtract(getPsiObject(o1)).
+				add(getPsiObject(o3)).subtract(getPsiObject(o4)).mod(phi_n);
+	}
 	
 	/**
 	 * compute hash of time stamps t[i], based on t[i] + t[i-1] + t[i+1]
@@ -276,6 +298,20 @@ public class PMAC implements RW{
 	}
 	
 	/**
+	 * 
+	 * @param g_pi_su
+	 * @param pi_prex
+	 * @param o1
+	 * @param o2
+	 * @param o3
+	 * @return
+	 */
+	public BigInteger generatePMACbyPrex(BigInteger g_pi_su, BigInteger pi_prex, 
+			Object o1, Object o2, Object o3){
+		return generatePMACbyPrex(g_pi_su, pi_prex, o1, o2, o2, o3);
+	}
+	
+	/**
 	 * compute PMAC by pre
 	 * @param g_pi_su
 	 * 					g^pi(su)
@@ -284,9 +320,27 @@ public class PMAC implements RW{
 	 * @return PMAC
 	 * 
 	 * */
-	public BigInteger generatePMACbyPrex(BigInteger g_pi_su, BigInteger pi_prex, int t1, int t2, int t3, int t4){
+	public BigInteger generatePMACbyPrex(BigInteger g_pi_su, BigInteger pi_prex, 
+			int t1, int t2, int t3, int t4){
 		return g_pi_su.modPow(pi_prex, n).multiply(g.modPow(getPsiTime(t1, t2, t3, t4), n)).mod(n);
 	}
+	
+	/**
+	 * 
+	 * @param g_pi_su
+	 * @param pi_prex
+	 * @param o1
+	 * @param o2
+	 * @param o3
+	 * @param o4
+	 * @return
+	 */
+	public BigInteger generatePMACbyPrex(BigInteger g_pi_su, BigInteger pi_prex, 
+			Object o1, Object o2, Object o3, Object o4){
+		return g_pi_su.modPow(pi_prex, n).multiply(g.modPow(getPsiObject(o1, o2, o3, o4), n)).mod(n);
+	}
+
+	
 	
 	/**
 	 * generate PMAC for single point (x[i],t[i]) in trajectory TX
@@ -297,12 +351,28 @@ public class PMAC implements RW{
 	 *            timestamp index for point
 	 * @return PMAC value of input point
 	 */
-	
 	public BigInteger[] generatePMAC(String x, int t1, int t2, int t3) {
 //		BigInteger r = BigInteger.probablePrime(bitLength, new Random());
 		BigInteger r = Constants.PRIME_P;
 		BigInteger exp = generatePix(x).multiply(r).mod(phi_n);
 		exp = exp.add(getPsiTime(t1, t2, t2, t3)).mod(phi_n);
+		exp = exp.multiply(d).mod(phi_n);
+		return new BigInteger[]{g.modPow(exp, n), r};
+	}
+	
+	/**
+	 * 
+	 * @param x
+	 * @param o1
+	 * @param o2
+	 * @param o3
+	 * @return
+	 */
+	public BigInteger[] generatePMAC(String x, Object o1, Object o2, Object o3) {
+//		BigInteger r = BigInteger.probablePrime(bitLength, new Random());
+		BigInteger r = Constants.PRIME_P;
+		BigInteger exp = generatePix(x).multiply(r).mod(phi_n);
+		exp = exp.add(getPsiObject(o1, o2, o2, o3)).mod(phi_n);
 		exp = exp.multiply(d).mod(phi_n);
 		return new BigInteger[]{g.modPow(exp, n), r};
 	}
@@ -437,9 +507,15 @@ public class PMAC implements RW{
 		// TODO Auto-generated method stub
 		PMAC pmac = new PMAC("./database/pmac.keys"); //pmac.initKey();
 		String x = "01110011100011100110001000010110";
-		System.out.println("Encrypted message is: " + x);
-		BigInteger sigma = pmac.generatePMAC(x, 0, 1, 2)[0];
+		String prex = "0111";
+//		System.out.println("Encrypted message is: " + x);
+		BigInteger[] sigma_r = pmac.generatePMAC(x, "0", "1", "2");
+		BigInteger sigma = sigma_r[0];
+		BigInteger r = sigma_r[1];
+		BigInteger g_pi_su = pmac.generateGPiSu(x, r, prex.length());
+		BigInteger pi_prex = pmac.generatePix(prex);
 		System.out.println("The PMAC value is " + sigma);
+		System.out.println(pmac.verify(sigma, pmac.generatePMACbyPrex(g_pi_su, pi_prex, "0", "1", "2")));
 		System.out.println(pmac.hashCode());
 		pmac = new PMAC("./database/pmac.keys");
 		System.out.println(pmac.hashCode());
