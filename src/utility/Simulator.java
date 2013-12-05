@@ -88,11 +88,11 @@ public abstract class Simulator {
 	 */
 	public String toString() {
 		StringBuffer sb = new StringBuffer("");
-		sb.append("Prover\t\t\t\t: \t" + prover.toString() + "\n");
-		sb.append("Verifier\t\t\t: \t" + verifier.toString() + "\n");
-		sb.append("VO preparation time is \t\t: \t" + getPreparationTime() + " ms\n");
-		sb.append("VO verification time is \t: \t" + getVerificationTime() + " ms\n");
-		sb.append("VO size is \t\t\t: \t" + getVOsize() + " B\n");
+//		sb.append("Prover\t\t\t\t: \t" + prover.toString() + "\n");
+//		sb.append("Verifier\t\t\t: \t" + verifier.toString() + "\n");
+		sb.append("Prepare time : " + getPreparationTime() + " ms\n");
+		sb.append("Verify time : " + getVerificationTime() + " ms\n");
+		sb.append("VO size : " + getVOsize() + " B, " + getVOsize() / 1000.0 + " KB\n");
 		return sb.toString();
 	}
 	

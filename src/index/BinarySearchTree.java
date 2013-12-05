@@ -24,12 +24,13 @@ import crypto.PMAC;
  */
 public class BinarySearchTree extends BinaryTree implements SearchIndex {
 
+	public DataOutputStream ds = null;
+
 	public BinarySearchTree(Class classValue) {
 		super(classValue);
 		// TODO Auto-generated constructor stub
 	}
 
-	public DataOutputStream ds = null;
 	/**
 	 * 
 	 */
@@ -75,6 +76,23 @@ public class BinarySearchTree extends BinaryTree implements SearchIndex {
 			nodes[size ++] = node;
 //			System.out.println(node.getValue().timeStampsToString());
 		}
+		buildTree(nodes, size, pmac);
+//		print();
+//		checkTree(this, pmac);
+		flush();
+	}
+	
+	public void flush() {
+		try {
+			write(ds);
+			ds.flush();
+			ds.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
+	}
+	public void buildTree(BinaryTree[] nodes, int size, PMAC pmac) {
 		while (size > 1) {
 			int newSize = 0;
 			for (int i = 0; i < size; i += 2) {
@@ -96,18 +114,7 @@ public class BinarySearchTree extends BinaryTree implements SearchIndex {
 		this.value = nodes[0].getValue();
 		this.setLeftChild(nodes[0].getLeftChild());
 		this.setRightChild(nodes[0].getRightChild());
-//		print();
-//		checkTree(this, pmac);
-		try {
-			write(ds);
-			ds.flush();
-			ds.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
-	
 
 	public void checkTree(BinaryTree tree, PMAC pmac) {
 		if (((BData) tree.getValue()).testData(pmac, ((BData) tree.getValue()).getPrex())) System.out.println("pass.");

@@ -13,6 +13,8 @@ import java.io.IOException;
 
 import index.BData;
 import index.BinarySearchTree;
+import index.GData;
+import index.GeneralSearchTree;
 import index.Query;
 import index.SearchIndex;
 import index.ThreadSearchTree;
@@ -88,25 +90,36 @@ public class Prover extends PMAC{
 	 */
 	public void prepareIndex(String fileName, Generator generator, int indexType) {
 		File file = null;
+		PMAC pmac = null;
+		Class classValue = null;
 		if (indexType == SearchIndex.ThreadSearchTree) {
+			classValue = BData.class;
 			file = new File(fileName + ".idx");
 			index = new ThreadSearchTree();
+			pmac = this;
 //			System.out.println(index.toString());
 		} else if (indexType == SearchIndex.GeneralSearchTree) {
+			classValue = GData.class;
+			file = new File(fileName + ".gen.dat");
+			index = new GeneralSearchTree(classValue);
+			pmac = generator;
 		} else if (indexType == SearchIndex.BinarySearchTree) {
+			classValue = BData.class;
 			file = new File(fileName + ".bin.dat");
-			index = new BinarySearchTree(BData.class);
+			index = new BinarySearchTree(classValue);
+			pmac = this;
 		} else {
 			throw new IllegalStateException("No such index type.");
 		}
 		if (file.exists()) {
-			index.leadTree(new Object[]{fileName, BData.class, BData.class});
+			index.leadTree(new Object[]{fileName, classValue, classValue});
 			System.out.println("Index is loaded.");
 		} else {
-			index.createTree(new Object[]{fileName, "5", "6", BData.class, BData.class});
-			index.buildIndex(trajectory, this);
+			index.createTree(new Object[]{fileName, "5", "6", classValue, classValue});
+			index.buildIndex(trajectory, pmac);
 			System.out.println("Index is built.");
 		}
+//		System.out.println(index.toString());
 	}
 	
 	/**
@@ -118,8 +131,8 @@ public class Prover extends PMAC{
 		this.g = pmac.g;
 		this.n = pmac.n;
 		this.e = pmac.e;
-		this.sk = pmac.sk;
-		this.phi_n = pmac.phi_n;// this is only for testing
+//		this.sk = pmac.sk;// this is only for testing
+//		this.phi_n = pmac.phi_n;// this is only for testing
 		this.mappingTable = pmac.mappingTable;
 	}
 

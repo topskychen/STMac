@@ -3,6 +3,7 @@
  */
 package utility;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Scanner;
 
@@ -40,8 +41,10 @@ public class TrajectorySimulator extends Simulator {
 		// TODO Auto-generated method stub
 		
 //		Trajectory trajectory = new Trajectory(); trajectory.prepare(fileNames[0]);
-		prover.prepareTraPMAC(fileNames[0], fileNames[1], generator);
-		prover.prepareIndex(fileNames[2], generator, SearchIndex.BinarySearchTree);
+		prover.prepareTraPMAC(fileNames[0] + "_x", fileNames[1] + "_x", generator);
+		prover.prepareIndex(fileNames[2] + "_x", generator, SearchIndex.GeneralSearchTree);
+		prover.prepareTraPMAC(fileNames[0] + "_y", fileNames[1] + "_y", generator);
+		prover.prepareIndex(fileNames[2] + "_y", generator, SearchIndex.GeneralSearchTree);
 	
 //		System.out.println(generator.toString());
 //		System.out.println(prover.toString());
@@ -51,27 +54,33 @@ public class TrajectorySimulator extends Simulator {
 		Scanner in = new Scanner(System.in);
 		while (in.hasNext()) {			
 			
+			String[] pre = in.nextLine().split(" ");
 			String[] tks = in.nextLine().split(" ");
 			/**
 			 * Request VO from the client
 			 */
 			int lBound = Integer.parseInt(tks[0]), rBound = Integer.parseInt(tks[1]);
-			Query query = new Query("01", lBound, rBound);
-			VO vo = prover.prepareVOwithIndex(query);
+			Query query_x = new Query(pre[0], lBound, rBound);
+			VO vo_x = prover.prepareVOwithIndex(query_x);
+			Query query_y = new Query(pre[1], lBound, rBound);
+			VO vo_y = prover.prepareVOwithIndex(query_y);
 			
 			/**
 			 * Verify the VO.
 			 */
-			if (!verifier.verifyVO(vo, query)) {
+			if (!verifier.verifyVO(vo_x, vo_y, query_x, query_y)) {
 				System.err.println("It does not pass the verification");
 			} else {
 				System.out.println("Pass!");
 			}
-			System.out.println(vo.toString());
+			System.out.println(vo_x.toString());
+			System.out.println(vo_y.toString());
 			
-			preparationTime 	= vo.getPrepareTime();
-			verificationTime 	= vo.getVerifyTime();
-			voSize 				= vo.getVOSize();
+			preparationTime 	= vo_x.getPrepareTime() + vo_y.getPrepareTime();
+			verificationTime 	= vo_x.getVerifyTime() + vo_y.getVerifyTime();
+			voSize 				= vo_x.getVOSize() + vo_y.getVOSize();
+			
+			System.out.println(toString());
 		}
 		in.close();
 	}
@@ -120,7 +129,5 @@ public class TrajectorySimulator extends Simulator {
 		// TODO Auto-generated method stub
 		
 	}
-	
-	
 
 }

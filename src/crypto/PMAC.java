@@ -236,7 +236,11 @@ public class PMAC implements RW{
 	 * @return
 	 */
 	public BigInteger getPsiObject(Object o) {
-		return AES.encryptBI(sk, Hasher.hashBytes(o.toString().getBytes()));
+		if (o instanceof byte[]) {
+			return AES.encryptBI(sk, Hasher.hashBytes((byte[])o));
+		} else {
+			return AES.encryptBI(sk, Hasher.hashBytes(o.toString().getBytes()));
+		}
 	}
 	
 	/**
@@ -509,13 +513,14 @@ public class PMAC implements RW{
 		String x = "01110011100011100110001000010110";
 		String prex = "0111";
 //		System.out.println("Encrypted message is: " + x);
-		BigInteger[] sigma_r = pmac.generatePMAC(x, "0", "1", "2");
+		BigInteger[] sigma_r = pmac.generatePMAC(x, "0".getBytes(), "1".getBytes(), "2".getBytes());
 		BigInteger sigma = sigma_r[0];
 		BigInteger r = sigma_r[1];
 		BigInteger g_pi_su = pmac.generateGPiSu(x, r, prex.length());
 		BigInteger pi_prex = pmac.generatePix(prex);
 		System.out.println("The PMAC value is " + sigma);
-		System.out.println(pmac.verify(sigma, pmac.generatePMACbyPrex(g_pi_su, pi_prex, "0", "1", "2")));
+		System.out.println(pmac.verify(sigma, pmac.generatePMACbyPrex(g_pi_su, pi_prex, "0".getBytes(), "1".getBytes(), "2".getBytes())));
+		System.out.println(DataIO.toHexFromBytes("1".getBytes()));
 		System.out.println(pmac.hashCode());
 		pmac = new PMAC("./database/pmac.keys");
 		System.out.println(pmac.hashCode());

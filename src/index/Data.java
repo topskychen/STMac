@@ -14,6 +14,11 @@ import IO.RW;
  */
 public class Data implements RW {
 
+	public static int B_TYPE 	= 0;
+	public static int G_TYPE 	= 1;
+	
+	public static String[] TYPE_NAMES = {"BData", "GData"};
+	
 	/**
 	 * 
 	 */

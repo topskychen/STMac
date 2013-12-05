@@ -13,7 +13,7 @@ import crypto.VO;
  */
 public class Verifier extends PMAC{
 
-	Query query = null;
+	Query query_x = null, query_y = null;
 	
 	public Verifier() {
 		super();
@@ -27,6 +27,12 @@ public class Verifier extends PMAC{
 
 	}
 
+	public boolean verifyVO(VO vo_x, VO vo_y, Query query_x, Query query_y) {
+		this.query_x = query_x;
+		this.query_y = query_y;
+		return vo_x.verify(this, query_x) && vo_y.verify(this, query_y);
+	}
+	
 	/**
 	 * Verify the VO
 	 * @param vo
@@ -34,8 +40,8 @@ public class Verifier extends PMAC{
 	 */
 	public boolean verifyVO(VO vo, Query query) {
 		// TODO Auto-generated method stub
-		this.query = query;
-		return vo.verify(this, query);
+		this.query_x = query;
+		return vo.verify(this, query_x);
 	}
 
 	/**
@@ -55,7 +61,7 @@ public class Verifier extends PMAC{
 	
 	public String toString() {
 		StringBuffer sb = new StringBuffer("verifier: \n");
-		sb.append("q=" + query);
+		sb.append("q=" + query_x + ", " + query_y);
 		sb.append(super.toString());
 		return sb.toString();
 	}
