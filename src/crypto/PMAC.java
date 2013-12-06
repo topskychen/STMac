@@ -41,7 +41,7 @@ public class PMAC implements RW{
 	public BigInteger[][] mappingTable = null;
 	
 	static {
-		Hasher.setInstance("MD5");
+//		Hasher.setInstance("MD5");
 	}
 	
 	/**

@@ -92,6 +92,10 @@ public class VO {
 				isRight ? GData.getHash(data.getT3()) : null,
 				isRight ? GData.getHash(data.getT4()) : null
 				);
+//		if (data.getGf3().verifyValueGreaterThan(voCell.gfs[2], query.getrBound()) == false) {
+//			System.out.println("fail");
+//			System.out.println(data.getGf3().v + ", " + query.getrBound());
+//		} 
 		voCell.setLeft(isLeft);
 		voCell.setRight(isRight);
 		return voCell;

@@ -10,7 +10,8 @@ package utility;
 public class Constants {
 
 	public static int ThreadNum = 2;
-	
+	public static int InputQuery = 1;
+	public static int FileQuery = 2;
 	/**
 	 * 
 	 */

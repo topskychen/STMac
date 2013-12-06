@@ -3,6 +3,7 @@
  */
 package index;
 
+import index.GeneralSearchTree.MyTask;
 import index.ThreadSearchTree.RangeQueryStrategy;
 
 import java.io.BufferedInputStream;
@@ -14,10 +15,14 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.ArrayList;
 
+import utility.Constants;
 import memoryindex.BinaryTree;
 import memoryindex.IQueryStrategy;
+import multithread.MultiThread;
+import multithread.Task;
 import crypto.PMAC;
 
 /**
@@ -66,14 +71,19 @@ public class BinarySearchTree extends BinaryTree implements SearchIndex {
 		if (tra.checkTrajectory() == false) 
 			throw new IllegalStateException("The pmac for trajectory is not complete.");
 		BinaryTree[] nodes = new BinaryTree[tra.length()]; int size = 0;
+		MyTask2[] tasks = new MyTask2[tra.length()];
+		for (int i = 1; i <= tra.length(); i ++) {
+			tasks[i - 1] = new MyTask2(new BData(tra.getLocation(i), 
+					tra.getTimeStamp(i - 1), 
+					tra.getTimeStamp(i), 
+					tra.getTimeStamp(i + 1), 
+					tra.getSigma(i), 
+					tra.getR(i), pmac, true), pmac, tra.getR(i));
+		}
+		MultiThread multiThread2 = new MultiThread(tasks, Constants.ThreadNum); multiThread2.run();
 		for (int i = 1; i <= tra.length(); i ++) {
 			BinaryTree<Integer, BData> node = 
-					new BinaryTree(tra.getTimeStamp(i), new BData(tra.getLocation(i), 
-									tra.getTimeStamp(i - 1), 
-									tra.getTimeStamp(i), 
-									tra.getTimeStamp(i + 1), 
-									tra.getSigma(i), 
-									tra.getR(i), pmac),
+					new BinaryTree(tra.getTimeStamp(i), tasks[i - 1].getData(),
 									getClassValue());
 			nodes[size ++] = node;
 //			System.out.println(node.getValue().timeStampsToString());
@@ -213,5 +223,27 @@ public class BinarySearchTree extends BinaryTree implements SearchIndex {
 			return true;
 		}
 		
+	}
+	
+	class MyTask2 extends Task {
+		BData data = null;
+		PMAC pmac = null;
+		BigInteger r = null;
+		
+		public MyTask2 (BData data, PMAC pmac, BigInteger r) {
+			this.data = data;
+			this.pmac = pmac;
+			this.r = r;
+		}
+		
+		public BData getData() {
+			return data;
+		}
+
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			this.data.buildData(pmac, r);
+		}
 	}
 }

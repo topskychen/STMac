@@ -13,6 +13,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import timer.Timer;
 import index.BData;
 import index.BinarySearchTree;
 import index.GData;
@@ -113,13 +114,16 @@ public class Prover extends PMAC{
 		} else {
 			throw new IllegalStateException("No such index type.");
 		}
+		Timer timer = new Timer(); timer.reset();
 		if (file.exists()) {
 			index.leadTree(new Object[]{fileName, classValue, classValue});
-			System.out.println("Index is loaded.");
+			timer.stop();
+			System.out.println("Index is loaded. (" + timer.timeElapseinMs() + " ms)");
 		} else {
 			index.createTree(new Object[]{fileName, "5", "6", classValue, classValue});
 			index.buildIndex(trajectory, pmac);
-			System.out.println("Index is built.");
+			timer.stop();
+			System.out.println("Index is built. (" + timer.timeElapseinMs() + " ms)");
 		}
 //		System.out.println(index.toString());
 	}

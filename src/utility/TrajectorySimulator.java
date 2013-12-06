@@ -5,8 +5,10 @@ package utility;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Scanner;
 
+import crypto.Hasher;
 import crypto.VO;
 import index.Query;
 import index.SearchIndex;
@@ -32,7 +34,7 @@ public class TrajectorySimulator extends Simulator {
 		// TODO Auto-generated constructor stub
 	}
 
-	public void runCase (String line) {
+	public void runCase (String line, int queryType) {
 		String[] tks = line.split(" ");
 		/**
 		 * Request VO from the client
@@ -49,15 +51,19 @@ public class TrajectorySimulator extends Simulator {
 		if (!verifier[0].verifyVO(vo_x, query_x) || !verifier[1].verifyVO(vo_y, query_y)) {
 			System.err.println("It does not pass the verification");
 		} else {
-			System.out.println("Pass!");
+			if (Constants.InputQuery == queryType) { 
+				System.out.println("Pass!");
+			}
 		}
-		System.out.println(vo_x.toString());
-		System.out.println(vo_y.toString());
+		if (Constants.InputQuery == queryType) {
+			System.out.println(vo_x.toString());
+			System.out.println(vo_y.toString());
+		}
 		
 		preparationTime 	= vo_x.getPrepareTime() + vo_y.getPrepareTime();
 		verificationTime 	= vo_x.getVerifyTime() + vo_y.getVerifyTime();
 		voSize 				= vo_x.getVOSize() + vo_y.getVOSize();
-		System.out.println(toString());
+//		System.out.println(toString());
 	}
 	
 	/* (non-Javadoc)
@@ -83,15 +89,40 @@ public class TrajectorySimulator extends Simulator {
 			String line = in.nextLine();
 			if (line.equalsIgnoreCase("a")) {	
 				System.out.println("Input prex prey l r:");
-				runCase(in.nextLine());
-			} else {
+				runCase(in.nextLine(), Constants.InputQuery);
+				System.out.println(toString());
+			} else if (line.equalsIgnoreCase("b")){
 				System.out.println("Input file to query:");
 				String fileName = in.nextLine();
 				Scanner fin = new Scanner(new File(fileName)); int num = Integer.parseInt(fin.nextLine());
+				Statistics stat = new Statistics();
 				for (int i = 0; i < num; i ++) {
-					runCase(fin.nextLine());
+					runCase(fin.nextLine(), Constants.FileQuery);
+					stat.append(preparationTime, verificationTime, voSize);
 				}
 				fin.close();
+				System.out.println(stat.toString());
+			} else {
+				System.out.println("Input folder to query:");
+				String dir = in.nextLine();
+				if (!dir.endsWith("/")) dir = dir + "/";
+				System.out.println("Input file prefix to query:");
+				String prefix = in.nextLine();
+				Statistics[] stats = new Statistics[QueryGenerator.ratios.length];
+				PrintWriter pw = new PrintWriter(new File(dir + prefix + ".ans_" + index));
+				for (int i = QueryGenerator.ratios.length - 1; i >= 0; i --) {
+					String fileName = dir + prefix + ".t_" + Math.sqrt(QueryGenerator.ratios[i]);
+					Scanner fin = new Scanner(new File(fileName)); int num = Integer.parseInt(fin.nextLine());
+					stats[i] = new Statistics();
+					for (int j = 0; j < num; j ++) {
+						runCase(fin.nextLine(), Constants.FileQuery);
+						stats[i].append(preparationTime, verificationTime, voSize);
+					}
+					fin.close();
+					System.out.println(stats[i]);
+					pw.println(stats[i].getAvePrepareTime() + "\t" + stats[i].getAveVerifyTime() + "\t" + stats[i].getAveVOSize());
+				}
+				pw.close();
 			}
 		}
 	}
@@ -100,6 +131,7 @@ public class TrajectorySimulator extends Simulator {
 		if (o == 0) {
 			System.out.println("(a) user input");
 			System.out.println("(b) file input");
+			System.out.println("(c) folder input");
 		} else if (o == 1){
 			System.out.println("(a) build index\n(b) load index");
 		}

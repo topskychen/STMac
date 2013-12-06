@@ -34,7 +34,7 @@ public class BData extends Data {
 	}
 	
 	public BData(String location, int t1, int t2, int t3, BigInteger sigma,
-			BigInteger r, PMAC pmac) {
+			BigInteger r, PMAC pmac, boolean buildLater) {
 		super();
 		this.prex = location;
 		this.t1 = t1;
@@ -42,8 +42,14 @@ public class BData extends Data {
 		this.t3 = t2;
 		this.t4 = t3;
 		this.sigma = sigma;
-		this.g_pi_su = pmac.generateGPiSu(this.prex, r, this.prex.length());
+		if (!buildLater) {
+			this.g_pi_su = pmac.generateGPiSu(this.prex, r, this.prex.length());
+		}
 //		System.out.println(timeStampsToString() + testData(pmac, prex));
+	}
+	
+	public void buildData(PMAC pmac, BigInteger r) {
+		this.g_pi_su = pmac.generateGPiSu(this.prex, r, this.prex.length());
 	}
 
 	public BData(Data[] data, int slots, PMAC pmac) {

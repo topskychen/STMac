@@ -178,7 +178,7 @@ public class Trajectory implements RW{
 	}
 	
 	public BData getLeafData(int p, PMAC pmac) {
-		return new BData(locations[p], timeStamps[p - 1], timeStamps[p], timeStamps[p + 1], sigmas[p], rs[p], pmac);
+		return new BData(locations[p], timeStamps[p - 1], timeStamps[p], timeStamps[p + 1], sigmas[p], rs[p], pmac, false);
 	}
 
 	@Override
