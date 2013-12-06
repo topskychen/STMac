@@ -122,12 +122,12 @@ public class EncodingConverter {
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-//		EncodingConverter encodingConverter = new EncodingConverter("./dataset/1000.txt_x");
-//		EncodingConverter encodingConverter = new EncodingConverter("./dataset/10000.txt_x");
-//		EncodingConverter encodingConverter = new EncodingConverter("./dataset/100000.txt_x");
-//		EncodingConverter encodingConverter = new EncodingConverter("./dataset/1000.txt_y");
-//		EncodingConverter encodingConverter = new EncodingConverter("./dataset/10000.txt_y");
-//		EncodingConverter encodingConverter = new EncodingConverter("./dataset/100000.txt_y");
+		EncodingConverter encodingConverter = new EncodingConverter("./dataset/1000.txt_x");
+		encodingConverter = new EncodingConverter("./dataset/10000.txt_x");
+		encodingConverter = new EncodingConverter("./dataset/100000.txt_x");
+		encodingConverter = new EncodingConverter("./dataset/1000.txt_y");
+		encodingConverter = new EncodingConverter("./dataset/10000.txt_y");
+		encodingConverter = new EncodingConverter("./dataset/100000.txt_y");
 	}
 
 }

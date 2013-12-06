@@ -24,7 +24,7 @@ import java.util.Scanner;
  * @author chenqian
  *
  */
-public class dataParser {
+public class DataParser {
 
 	public static void listSubFileNames (File file) {
 		for (String subFile : file.list()) {
@@ -183,7 +183,7 @@ public class dataParser {
 	/**
 	 * 
 	 */
-	public dataParser(String fileName) {
+	public DataParser(String fileName) {
 		// TODO Auto-generated constructor stub
 //		File file
 		
@@ -211,7 +211,11 @@ public class dataParser {
 //		readTimeStamps("./dataset/Geolife/Data/064/Trajectory/20080824001306.plt");
 //		readTimeStamps("./dataset/Geolife/Data/010/Trajectory/20081219114010.plt");
 		
-		generateTraWithTime("./dataset/Geolife/Data/000/Trajectory/20090402060732.plt", "./dataset/1000.txt");
+		
+		drawTrajectory("./dataset/Geolife/Data/000/Trajectory/20090402060732.plt");
+//		generateTraWithTime("./dataset/Geolife/Data/000/Trajectory/20090402060732.plt", "./dataset/1000.txt");
+//		generateTraWithTime("./dataset/Geolife/Data/064/Trajectory/20080824001306.plt", "./dataset/10000.txt");
+//		generateTraWithTime("./dataset/Geolife/Data/010/Trajectory/20081219114010.plt", "./dataset/100000.txt");
 	}
 
 }

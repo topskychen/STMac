@@ -1,5 +1,6 @@
 package index;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.PriorityQueue;
 
@@ -141,6 +142,16 @@ public class OptimizedNode {
 	
 	public boolean isLeaf() {
 		return getLeftChild() == null && getRightChild() == null;
+	}
+
+	public void getEncoding(ArrayList<String> encodings, StringBuffer sb) {
+		// TODO Auto-generated method stub
+		if (isLeaf()) {
+			encodings.add(sb.toString());
+			return;
+		}
+		leftChild.getEncoding(encodings, sb.append("0")); sb.deleteCharAt(sb.length() - 1);
+		rightChild.getEncoding(encodings, sb.append("1")); sb.deleteCharAt(sb.length() - 1);
 	}
 
 }

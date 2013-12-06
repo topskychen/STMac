@@ -6,6 +6,8 @@ import java.math.*;
 import java.util.*;
 import java.io.*;
 
+import multithread.MultiThread;
+import multithread.Task;
 import IO.DataIO;
 import IO.RW;
 
@@ -382,12 +384,25 @@ public class PMAC implements RW{
 	}
 	
 	public void generatePMAC(Trajectory tra, int start, int end) {
-		BigInteger[] sigma_r = new BigInteger[2];
-		for (int i = start; i <= end; i ++ ) {
-			sigma_r = generatePMAC(tra.getLocation(i), 
-					tra.getTimeStamp(i - 1), tra.getTimeStamp(i), tra.getTimeStamp(i + 1));
-			tra.setSigma(i, sigma_r[0]);
-			tra.setR(i, sigma_r[1]);
+		if (utility.Constants.ThreadNum == 1) {
+			BigInteger[] sigma_r = new BigInteger[2];
+			for (int i = start; i <= end; i ++ ) {
+				sigma_r = generatePMAC(tra.getLocation(i), 
+						tra.getTimeStamp(i - 1), tra.getTimeStamp(i), tra.getTimeStamp(i + 1));
+				tra.setSigma(i, sigma_r[0]);
+				tra.setR(i, sigma_r[1]);
+			}
+		} else {
+			MyTask[] myTask = new MyTask[end - start + 1]; 
+			for (int i = start; i <= end; i ++ ) {
+				myTask[i - start] = new MyTask(tra.getLocation(i), 
+						tra.getTimeStamp(i - 1), tra.getTimeStamp(i), tra.getTimeStamp(i + 1));
+			}
+			MultiThread multiThread = new MultiThread(myTask, utility.Constants.ThreadNum); multiThread.run();
+			for (int i = start; i <= end; i ++ ) {
+				tra.setSigma(i, myTask[i - start].getSigma());
+				tra.setR(i, myTask[i - start].getR());
+			}
 		}
 	}
 	
@@ -601,5 +616,35 @@ public class PMAC implements RW{
 			}
 		}
 		return hash;
+	}
+	
+	class MyTask extends Task {
+		String pre;
+		int t1, t2, t3;
+		BigInteger[] sigma_r = null;
+		
+		public MyTask(String pre, int t1, int t2, int t3) {
+			super();
+			this.pre = pre;
+			this.t1 = t1;
+			this.t2 = t2;
+			this.t3 = t3;
+		}
+
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			this.sigma_r = generatePMAC(pre, 
+					t1, t2, t3);
+		}
+		
+		public BigInteger getSigma() {
+			return sigma_r[0];
+		}
+		
+		public BigInteger getR() {
+			return sigma_r[1];
+		}
+		
 	}
 }

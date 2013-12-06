@@ -26,7 +26,7 @@ public class SimplePointSimulator extends Simulator {
 	 */
 	public SimplePointSimulator(Generator authenticator, Prover prover, Verifier verifier) {
 		// TODO Auto-generated constructor stub
-		super(authenticator, prover, verifier);
+		super(authenticator, new Prover[]{prover}, new Verifier[]{verifier});
 	}
 	
 	
@@ -52,18 +52,18 @@ public class SimplePointSimulator extends Simulator {
 		 * Client requests the PMAC for a point.
 		 */
 //		String x = "0011";
-		prover.requestPMAC(trajectory, generator, 1, trajectory.length());
+		prover[0].requestPMAC(trajectory, generator, 1, trajectory.length());
 		
 		/**
 		 * Request VO from the client
 		 */
 //		Query query = new Query("00");
-		VO vo = prover.prepareVOwithTrajectory(query);
+		VO vo = prover[0].prepareVOwithTrajectory(query);
 		
 		/**
 		 * Verify the VO.
 		 */
-		if (!verifier.verifyVO(vo, query)) {
+		if (!verifier[0].verifyVO(vo, query)) {
 			System.err.println("It does not pass the verification");
 		} else {
 			System.out.println("Pass!");
@@ -96,7 +96,7 @@ public class SimplePointSimulator extends Simulator {
 		/**
 		 * Initialize the keys
 		 */
-		generator.initClientKey(prover);
-		generator.initVerifierKey(verifier);
+		generator.initClientKey(prover[0]);
+		generator.initVerifierKey(verifier[0]);
 	}
 }

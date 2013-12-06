@@ -17,13 +17,13 @@ import crypto.VO;
 public abstract class Simulator {
 
 	Generator 		generator				= null;
-	Prover 			prover					= null;
-	Verifier 		verifier				= null;
+	Prover[] 			prover					= null;
+	Verifier[] 		verifier				= null;
 	double 			preparationTime 		= -1;
 	double 			verificationTime 		= -1;
 	long 			voSize					= -1;
 	
-	public Simulator(Generator authenticator, Prover prover, Verifier verifier) {
+	public Simulator(Generator authenticator, Prover[] prover, Verifier[] verifier) {
 		this.generator = authenticator;
 		this.prover = prover;
 		this.verifier = verifier;

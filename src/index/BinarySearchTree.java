@@ -5,6 +5,8 @@ package index;
 
 import index.ThreadSearchTree.RangeQueryStrategy;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -50,7 +52,7 @@ public class BinarySearchTree extends BinaryTree implements SearchIndex {
 	@Override
 	public ArrayList<Data> rangeQuery(Query query) {
 		// TODO Auto-generated method stub
-		RangeQueryStrategy rangeQueryStrategy = new RangeQueryStrategy(query.getlBound(), query.getrBound());
+		RangeQueryStrategy rangeQueryStrategy = new RangeQueryStrategy(query.getlBound(), query.getrBound(), query.getRange());
 		queryStrategy(rangeQueryStrategy);
 		return rangeQueryStrategy.getResults();
 	}
@@ -136,7 +138,7 @@ public class BinarySearchTree extends BinaryTree implements SearchIndex {
 		// TODO Auto-generated method stub
 		DataInputStream ds;
 		try {
-			ds = new DataInputStream(new FileInputStream(new File((String)args[0] + ".bin.dat")));
+			ds = new DataInputStream(new BufferedInputStream(new FileInputStream(new File((String)args[0] + ".bin.dat"))));
 			this.classValue = (Class) args[1];
 			this.read(ds);
 		} catch (FileNotFoundException e) {
@@ -149,7 +151,7 @@ public class BinarySearchTree extends BinaryTree implements SearchIndex {
 	public void createTree(Object[] args) {
 		// TODO Auto-generated method stub
 		try {
-			this.ds = new DataOutputStream(new FileOutputStream(new File((String)args[0] + ".bin.dat")));
+			this.ds = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(new File((String)args[0] + ".bin.dat"))));
 			this.classValue = (Class) args[3];
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -162,13 +164,14 @@ public class BinarySearchTree extends BinaryTree implements SearchIndex {
 		private ArrayList<BinaryTree> toVisit = new ArrayList<BinaryTree>();
 		private ArrayList<Data> results = new ArrayList<Data>();
 		private int lBound, rBound;
-
+		private String prex;
 		
 		
-		public RangeQueryStrategy(int lBound, int rBound) {
+		public RangeQueryStrategy(int lBound, int rBound, String prex) {
 			super();
 			this.lBound = lBound;
 			this.rBound = rBound;
+			this.prex = prex;
 		}
 
 		public ArrayList<Data> getResults() {
@@ -201,6 +204,7 @@ public class BinarySearchTree extends BinaryTree implements SearchIndex {
 		
 		boolean visitData(BData data) {
 			if (data.t2 >= lBound && data.t3 <= rBound) {
+				if (!data.prex.startsWith(prex)) System.out.println("wanring: the data prefix: " + data.prex);
 				results.add(data);
 				return false;
 			} else if (data.t2 > rBound || data.t3 < lBound) {

@@ -45,20 +45,28 @@ public class GData extends BData{
 		return Hasher.computeGeneralHashValue(new byte[][]{a, b});
 	}
 	
-	public GData(String location, int t1, int t2, int t4, byte[] gf1, Gfunction gf2, byte[] gf4, PMAC pmac) {
+	public GData(String location, int t1, int t2, int t4, byte[] gf1, Gfunction gf2, byte[] gf4, PMAC pmac, boolean buildLater) {
 		this.prex = location;
 		this.t1 = t1;
 		this.t2 = t2;
 		this.t3 = t2;
 		this.t4 = t4;
-		BigInteger[] sigma_r = pmac.generatePMAC(getPrex(), getHash(gf1, getT1()), getHash(gf2.getDigest(), getT2()), getHash(gf4, getT4()));
-		this.sigma = sigma_r[0];
-		this.g_pi_su = pmac.generateGPiSu(getPrex(), sigma_r[1], getPrex().length());
+		if (!buildLater){
+			BigInteger[] sigma_r = pmac.generatePMAC(getPrex(), getHash(gf1, getT1()), getHash(gf2.getDigest(), getT2()), getHash(gf4, getT4()));
+			this.sigma = sigma_r[0];
+			this.g_pi_su = pmac.generateGPiSu(getPrex(), sigma_r[1], getPrex().length());
+		}
 		this.gf1 = gf1;
 		this.gf2 = gf2;
 		this.gf3 = gf2;
 		this.gf4 = gf4;
 //		System.out.println(timeStampsToString() + testData(pmac, getPrex()));
+	}
+	
+	public void buildData(PMAC pmac) {
+		BigInteger[] sigma_r = pmac.generatePMAC(getPrex(), getHash(gf1, getT1()), getHash(gf2.getDigest(), getT2()), getHash(gf4, getT4()));
+		this.sigma = sigma_r[0];
+		this.g_pi_su = pmac.generateGPiSu(getPrex(), sigma_r[1], getPrex().length());
 	}
 
 	public GData(Data[] data, int slots, PMAC pmac) {

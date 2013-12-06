@@ -2,6 +2,7 @@
  * 
  */
 package index;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.PriorityQueue;
 
@@ -37,6 +38,11 @@ public class OptimizedTree {
 	
 	public String toString() {
 		return root.toString(0);
+	}
+	
+	public void getEncodings(ArrayList<String> encodings) {
+		StringBuffer sb = new StringBuffer("0");
+		root.getEncoding(encodings, sb);
 	}
 	
 	/**

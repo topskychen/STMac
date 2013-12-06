@@ -3,6 +3,8 @@
  */
 package party;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -66,13 +68,13 @@ public class Prover extends PMAC{
 		this.trajectory = new Trajectory();
 		File traFile = new File(traPMACFileName);
 		if (traFile.exists()) {
-			DataInputStream dis = new DataInputStream(new FileInputStream(traFile));
+			DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(traFile)));
 			trajectory.read(dis);
 			System.out.println("Trajectory data is loaded.");
 		} else {
 			trajectory.prepare(traFileName);
 			this.requestPMAC(trajectory, generator, 1, trajectory.length());
-			DataOutputStream dos = new DataOutputStream(new FileOutputStream(traFile));
+			DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(traFile)));
 			trajectory.write(dos);
 			dos.flush(); dos.close();
 			System.out.println("Trajectory data is computed and stored.");
