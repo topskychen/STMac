@@ -33,6 +33,8 @@ public class PMAC implements RW{
 
 	private int bitLength;
 //	
+	public static boolean noPhi = false; 
+	
 //	private final static int T_START = 1; // time stamp begins from 1, not 0
 //	private final static int T_END = 8;
 	
@@ -116,7 +118,11 @@ public class PMAC implements RW{
 		checkInitKeys();
 		BigInteger Pix = BigInteger.ONE;
 		for (int i = 0; i < x.length(); i++) {
-			Pix = Pix.multiply(mappingTable[i][x.charAt(i) - '0']).mod(phi_n);
+			if (noPhi) {
+				Pix = Pix.multiply(mappingTable[i][x.charAt(i) - '0']);
+			} else {
+				Pix = Pix.multiply(mappingTable[i][x.charAt(i) - '0']).mod(phi_n);
+			}
 		}
 //		Pix = Pix.multiply(r).mod(phi_p);
 		return Pix;
@@ -255,7 +261,11 @@ public class PMAC implements RW{
 	 */
 	public BigInteger getPsiTime(int t1, int t2, int t3, int t4) {
 //		return BigInteger.ONE;
-		return getPsiTime(t2).subtract(getPsiTime(t1)).add(getPsiTime(t3)).subtract(getPsiTime(t4)).mod(phi_n);
+		if (noPhi) {
+			return getPsiTime(t2).subtract(getPsiTime(t1)).add(getPsiTime(t3)).subtract(getPsiTime(t4));
+		} else {
+			return getPsiTime(t2).subtract(getPsiTime(t1)).add(getPsiTime(t3)).subtract(getPsiTime(t4)).mod(phi_n);
+		}
 	}
 
 	/**
@@ -268,8 +278,13 @@ public class PMAC implements RW{
 	 */
 	public BigInteger getPsiObject(Object o1, Object o2, Object o3, Object o4) {
 //		return BigInteger.ONE;
-		return getPsiObject(o2).subtract(getPsiObject(o1)).
+		if (noPhi) {
+			return getPsiObject(o2).subtract(getPsiObject(o1)).
+			add(getPsiObject(o3)).subtract(getPsiObject(o4));
+		} else {
+			return getPsiObject(o2).subtract(getPsiObject(o1)).
 				add(getPsiObject(o3)).subtract(getPsiObject(o4)).mod(phi_n);
+		}
 	}
 	
 	/**
@@ -360,10 +375,17 @@ public class PMAC implements RW{
 	public BigInteger[] generatePMAC(String x, int t1, int t2, int t3) {
 //		BigInteger r = BigInteger.probablePrime(bitLength, new Random());
 		BigInteger r = Constants.PRIME_P;
-		BigInteger exp = generatePix(x).multiply(r).mod(phi_n);
-		exp = exp.add(getPsiTime(t1, t2, t2, t3)).mod(phi_n);
-		exp = exp.multiply(d).mod(phi_n);
-		return new BigInteger[]{g.modPow(exp, n), r};
+		if (noPhi) {
+			BigInteger exp = generatePix(x).multiply(r);
+			exp = exp.add(getPsiTime(t1, t2, t2, t3));
+			exp = exp.multiply(d);
+			return new BigInteger[]{g.modPow(exp, n), r};
+		} else {
+			BigInteger exp = generatePix(x).multiply(r).mod(phi_n);
+			exp = exp.add(getPsiTime(t1, t2, t2, t3)).mod(phi_n);
+			exp = exp.multiply(d).mod(phi_n);
+			return new BigInteger[]{g.modPow(exp, n), r};
+		}
 	}
 	
 	/**
@@ -377,10 +399,18 @@ public class PMAC implements RW{
 	public BigInteger[] generatePMAC(String x, Object o1, Object o2, Object o3) {
 //		BigInteger r = BigInteger.probablePrime(bitLength, new Random());
 		BigInteger r = Constants.PRIME_P;
-		BigInteger exp = generatePix(x).multiply(r).mod(phi_n);
-		exp = exp.add(getPsiObject(o1, o2, o2, o3)).mod(phi_n);
-		exp = exp.multiply(d).mod(phi_n);
-		return new BigInteger[]{g.modPow(exp, n), r};
+		if (noPhi) {
+			BigInteger exp = generatePix(x).multiply(r);
+			exp = exp.add(getPsiObject(o1, o2, o2, o3));
+			exp = exp.multiply(d);
+			return new BigInteger[]{g.modPow(exp, n), r};
+		} else {
+			BigInteger exp = generatePix(x).multiply(r).mod(phi_n);
+			exp = exp.add(getPsiObject(o1, o2, o2, o3)).mod(phi_n);
+			exp = exp.multiply(d).mod(phi_n);
+			return new BigInteger[]{g.modPow(exp, n), r};
+		}
+		
 	}
 	
 	public void generatePMAC(Trajectory tra, int start, int end) {

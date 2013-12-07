@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import java.util.Scanner;
 
 import crypto.Hasher;
+import crypto.PMAC;
 import crypto.VO;
 import index.Query;
 import index.SearchIndex;
@@ -120,7 +121,7 @@ public class TrajectorySimulator extends Simulator {
 					}
 					fin.close();
 					System.out.println(stats[i]);
-					pw.println(stats[i].getAvePrepareTime() + "\t" + stats[i].getAveVerifyTime() + "\t" + stats[i].getAveVOSize());
+					pw.println(stats[i].getAvePrepareTime() + "\t" + stats[i].getAveVerifyTime() + "\t" + stats[i].getAveVOSize() / 1024.0);
 				}
 				pw.close();
 			}
@@ -168,6 +169,11 @@ public class TrajectorySimulator extends Simulator {
 			}
 			System.out.println("input threadNum:");
 			Constants.ThreadNum = Integer.parseInt(in.nextLine());
+			System.out.println("use phi or not (n/y):");
+			String noPhi = in.nextLine();
+			if (noPhi.equalsIgnoreCase("n")) {
+				PMAC.noPhi = true;
+			}
 			try {
 				trajectorySimulator.run(new String[] {
 						"./dataset/" + fileName + ".txt" + encoding, 
