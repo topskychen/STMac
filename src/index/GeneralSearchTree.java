@@ -114,8 +114,8 @@ public class GeneralSearchTree extends BinaryTree implements SearchIndex {
 	public int buildLeafNodes(Trajectory tra, BinaryTree[] nodes, PMAC pmac) {
 		int size = 0;
 		Gfunction[] gfs = new Gfunction[tra.length() + 2];
-		gfs[0] = new Gfunction(-1, 2);
-		gfs[tra.length() + 1] = new Gfunction(1, 2);
+		gfs[0] = new Gfunction(-1, 2, Constants.lowerBound, Constants.upperBound);
+		gfs[tra.length() + 1] = new Gfunction(1, 2, Constants.lowerBound, Constants.upperBound);
 		MyTask[] tasks = new MyTask[tra.length()];
 		for (int i = 1; i <= tra.length(); i ++) {
 			tasks[i - 1] = new MyTask(tra.getTimeStamp(i), 2);
@@ -136,9 +136,13 @@ public class GeneralSearchTree extends BinaryTree implements SearchIndex {
 					gfs[i],
 					gfs[i + 1].getDigest(),
 					pmac,
-					true
+//					true
+					false
 					);
 			tasks2[i - 1] = new MyTask2(gdata, pmac);
+//			BinaryTree<Integer, GData> node =
+//					new BinaryTree(tra.getTimeStamp(i), gdata, GData.class);
+//			nodes[size ++] = node;
 		}
 		MultiThread multiThread2 = new MultiThread(tasks2, Constants.ThreadNum); multiThread2.run();
 		for (int i = 1; i <= tra.length(); i ++) {			
@@ -279,7 +283,7 @@ public class GeneralSearchTree extends BinaryTree implements SearchIndex {
 		@Override
 		public void run() {
 			// TODO Auto-generated method stub
-			gf = new Gfunction(t, base);
+			gf = new Gfunction(t, base, Constants.lowerBound, Constants.upperBound);
 		}
 		
 	}

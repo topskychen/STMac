@@ -298,12 +298,24 @@ public class VO {
 				byte[] gf2 = null, gf3 = null;
 				if (isLeft()) {
 					gf2 = Gfunction.getDigest(gfs[1]);
-					if (!Gfunction.verifyValueLessThan(gfs[1], query.getlBound())) return false;
+					if (!Gfunction.verifyValueLessThan(gfs[1], query.getlBound())) {
+						System.out.println("gf_L: " + timeStamps[1] + ", " + query.getlBound());
+						return false;
+					}
 				}
 				else gf2 = gfs[1];
 				if (isRight()) {
 					gf3 = Gfunction.getDigest(gfs[2]);
-					if (!Gfunction.verifyValueGreaterThan(gfs[2], query.getrBound())) return false;
+					if (!Gfunction.verifyValueGreaterThan(gfs[2], query.getrBound())) {
+						Gfunction gf = new Gfunction(timeStamps[2], 2);
+						byte[] tmp = gf.prepareValueGreaterThan(query.getrBound());
+						System.out.println();
+						System.out.println(DataIO.toHexFromBytes(gfs[2]));
+						System.out.println(DataIO.toHexFromBytes(tmp));
+						System.out.println(DataIO.toHexFromBytes(gfs[2]).equals(DataIO.toHexFromBytes(tmp)));
+						System.out.println("gf_R: " + timeStamps[2] + ", " + query.getrBound());
+						return false;
+					}
 				}
 				else gf3 = gfs[2];
 				BigInteger verifierComponent = pmac.generatePMACbyPrex(g_pi_su, pi_prex, 
