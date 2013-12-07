@@ -279,8 +279,12 @@ public class PMAC implements RW{
 	public BigInteger getPsiObject(Object o1, Object o2, Object o3, Object o4) {
 //		return BigInteger.ONE;
 		if (noPhi) {
+			System.out.println(getPsiObject(o2).subtract(getPsiObject(o1)).
+			add(getPsiObject(o3)).subtract(getPsiObject(o4)));
+			System.out.println(getPsiObject(o2).subtract(getPsiObject(o1)).
+					add(getPsiObject(o3)).subtract(getPsiObject(o4)).mod(phi_n));
 			return getPsiObject(o2).subtract(getPsiObject(o1)).
-			add(getPsiObject(o3)).subtract(getPsiObject(o4));
+					add(getPsiObject(o3)).subtract(getPsiObject(o4));
 		} else {
 			return getPsiObject(o2).subtract(getPsiObject(o1)).
 				add(getPsiObject(o3)).subtract(getPsiObject(o4)).mod(phi_n);

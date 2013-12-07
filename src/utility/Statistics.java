@@ -59,7 +59,7 @@ public class Statistics {
 		StringBuffer sb = new StringBuffer();
 		sb.append("prepareTime: " + getAvePrepareTime() + " ms\n");
 		sb.append("verifyTime: " + getAveVerifyTime() + " ms\n");
-		sb.append("VO Size: " + getAvePrepareTime() / 1000 + " KB\n");
+		sb.append("VO Size: " + getAveVOSize() / 1024 + " KB\n");
 		return sb.toString();
 	}
 	

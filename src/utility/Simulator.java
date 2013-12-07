@@ -21,6 +21,7 @@ public abstract class Simulator {
 	Verifier[] 		verifier				= null;
 	double 			preparationTime 		= -1;
 	double 			verificationTime 		= -1;
+	double			searchTime				= -1;
 	long 			voSize					= -1;
 	
 	public Simulator(Generator authenticator, Prover[] prover, Verifier[] verifier) {
@@ -73,6 +74,17 @@ public abstract class Simulator {
 	}
 	
 	/**
+	 * Get time of verification
+	 * @return
+	 */
+	public double getSearchTime() {
+		if (searchTime < 0) {
+			throw new IllegalStateException("The verificationTime time is not set, maybe u need to call run function first");
+		}
+		return searchTime;
+	}
+	
+	/**
 	 * Get size of VO
 	 * @return
 	 */
@@ -90,6 +102,7 @@ public abstract class Simulator {
 		StringBuffer sb = new StringBuffer("");
 //		sb.append("Prover\t\t\t\t: \t" + prover.toString() + "\n");
 //		sb.append("Verifier\t\t\t: \t" + verifier.toString() + "\n");
+		sb.append("Search time : " + getSearchTime() + " ms\n");
 		sb.append("Prepare time : " + getPreparationTime() + " ms\n");
 		sb.append("Verify time : " + getVerificationTime() + " ms\n");
 		sb.append("VO size : " + getVOsize() + " B, " + getVOsize() / 1000.0 + " KB\n");

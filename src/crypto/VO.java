@@ -29,12 +29,12 @@ public class VO {
 	Timer timer 				= null;
 	private double prepareTime	= -1; 
 	private double verifyTime 	= -1;
+	private double searchTime 	= -1;
 	private int 	voSize 		= -1;
 	ArrayList<VOCell> voCells 	= new ArrayList<VOCell>();
 	Query query 				= null;
 //	Trajectory 	trajectory		= null;
 	public static boolean precise = true;
-	
 	public VO() {
 		timer = new Timer();
 	}
@@ -110,6 +110,9 @@ public class VO {
 	public void prepare(PMAC pmac, SearchIndex index, Query query) {
 		timer.reset();
 		ArrayList<Data> datas = index.rangeQuery(query);
+		timer.stop();
+		searchTime = timer.timeElapseinMs();
+		timer.reset();
 		for (Data data : datas) {
 			if (data instanceof GData) voCells.add(prepareGData(pmac, (GData)data, query));
 			else if (data instanceof BData) voCells.add(prepareBData(pmac, (BData)data, query));
@@ -185,6 +188,17 @@ public class VO {
 			throw new IllegalStateException("No prepare function is called.");
 		}
 		return prepareTime;
+	}
+	
+	/**
+	 * Get preparation time.
+	 * @return
+	 */
+	public double getSearchTime() {
+		if (searchTime == -1) {
+			throw new IllegalStateException("No prepare function is called.");
+		}
+		return searchTime;
 	}
 	
 	/**

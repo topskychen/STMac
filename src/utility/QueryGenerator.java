@@ -105,21 +105,25 @@ public class QueryGenerator {
 			} 
 			in.close();
 			
-			int times = 100;
+			int times = 100, inc = 3;
 			for (int i = 0; i < 7; i ++){
 				Random random = new Random();
 				PrintWriter pw = new PrintWriter(new File("./query/" + fileName + ".t_" + Math.sqrt(ratios[i])));
 				PrintWriter pw2 = new PrintWriter(new File("./query/" + fileName + "_enc.t_" + Math.sqrt(ratios[i])));
 				int range = (int) ((dataxs[num - 1].time - dataxs[0].time) * Math.sqrt(ratios[i]));
 				System.out.println(range);
-				pw.println(times);
-				pw2.println(times);
+				pw.println(times * inc);
+				pw2.println(times * inc);
 				for (int j = 0; j < times; j ++) {
 					Query query = getRandom(random, num, range);
-					System.out.println(query.prex + " " + query.prey + " " + query.l + " " + query.r);
-					System.out.println(query.prex_enc + " " + query.prey_enc + " " + query.l + " " + query.r);
-					pw.println(query.prex + " " + query.prey + " " + query.l + " " + query.r);
-					pw2.println(query.prex_enc + " " + query.prey_enc + " " + query.l + " " + query.r);
+					for (int k = 0; k < inc; k ++) {
+						String prex = getPreString(query.prex, k), prey = getPreString(query.prey, k); 
+						String prex_enc = getPreString(query.prex_enc, k), prey_enc = getPreString(query.prey_enc, k);
+						System.out.println(prex + " " + prey + " " + query.l + " " + query.r);
+						System.out.println(prex_enc + " " + prey_enc + " " + query.l + " " + query.r);
+						pw.println(prex + " " + prey + " " + query.l + " " + query.r);
+						pw2.println(prex_enc + " " + prey_enc + " " + query.l + " " + query.r);
+					}
 				}
 				pw.close();
 				pw2.close();
@@ -131,6 +135,14 @@ public class QueryGenerator {
 			e.printStackTrace();
 		}
 	}
+	
+	public static String getPreString(String pre, int k) {
+		if (pre.length() > k + 1) {
+			return pre.substring(0, pre.length() - k - 1);
+		} else {
+			return pre.substring(0, 1);
+		}
+	} 
 	
 	public static Query getRandom(Random random, int num, int range) {
 		while (true) {
@@ -227,7 +239,7 @@ public class QueryGenerator {
 //		queryWithFixedTime("1000.txt", Math.sqrt(0.01));
 //		queryWithFixedTime("1000.txt", Math.sqrt(0.02));
 //		queryWithFixedTime("./dataset/10000.txt", Math.sqrt(0.0004));
-//		queryVariedTime("100000");
+		queryVariedTime("100000");
 //		queryVariedTime("10000");
 //		queryVariedTime("1000");
 	}

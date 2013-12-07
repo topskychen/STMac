@@ -235,7 +235,7 @@ public class GeneralSearchTree extends BinaryTree implements SearchIndex {
 			if (data.t2 >= lBound && data.t3 <= rBound) {
 				if (!data.prex.startsWith(prex)) System.out.println("wanring: the data prefix: " + data.prex);
 			}
-			if (data.getT2() > rBound && data.getT3() < lBound) {
+			if (data.getT2() > rBound || data.getT3() < lBound) {
 				return false;
 			} else {
 				if (data.getPrex().startsWith(prex)) {
