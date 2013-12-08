@@ -33,7 +33,8 @@ public class PrimeMatrix {
 		BigInteger[][] primeMatrix = new BigInteger[MVALUE][CVALUE];
 		for (int i = 0; i < MVALUE; i++) {
 			for (int j = 0; j < CVALUE; j++) {
-				primeMatrix[i][j] = BigInteger.probablePrime(32, new Random());
+//				primeMatrix[i][j] = BigInteger.probablePrime(32, new Random());
+				primeMatrix[i][j] = Constants.PRIME_Q.multiply(Constants.PRIME_Q).multiply(Constants.PRIME_Q).multiply(Constants.PRIME_Q).multiply(Constants.PRIME_Q);
 //				System.out.print(primeMatrix[i][j] + "\t");
 			}
 //			System.out.println();

@@ -61,7 +61,7 @@ public class TrajectorySimulator extends Simulator {
 			System.out.println(vo_y.toString());
 		}
 		
-		searchTime 			= vo_x.getSearchTime() + vo_y.getSearchTime();
+//		searchTime 			= vo_x.getSearchTime() + vo_y.getSearchTime();
 		preparationTime 	= vo_x.getPrepareTime() + vo_y.getPrepareTime();
 		verificationTime 	= vo_x.getVerifyTime() + vo_y.getVerifyTime();
 		voSize 				= vo_x.getVOSize() + vo_y.getVOSize();
@@ -104,16 +104,41 @@ public class TrajectorySimulator extends Simulator {
 				}
 				fin.close();
 				System.out.println(stat.toString());
+			} else if (line.equalsIgnoreCase("c")){
+				System.out.println("Input folder to query:");
+				String dir = in.nextLine();
+				if (!dir.endsWith("/")) dir = dir + "/";
+				System.out.println("Input file prefix to query:");
+				String prefix = in.nextLine();
+				System.out.println("Input query type (t/p):");
+				String type = in.nextLine();
+				Statistics[] stats = new Statistics[QueryGenerator.ratios.length];
+				PrintWriter pw = new PrintWriter(new File(dir + prefix + ".ans_" + index + "_" + PMAC.noPhi + "_" + type));
+				for (int i = QueryGenerator.ratios.length - 1; i >= 0; i --) {
+					String fileName = dir + prefix + "." + type + "_" + Math.sqrt(QueryGenerator.ratios[i]);
+					Scanner fin = new Scanner(new File(fileName)); int num = Integer.parseInt(fin.nextLine());
+					stats[i] = new Statistics();
+					for (int j = 0; j < num; j ++) {
+						runCase(fin.nextLine(), Constants.FileQuery);
+						stats[i].append(preparationTime, verificationTime, voSize);
+					}
+					fin.close();
+					System.out.println(stats[i]);
+					pw.println(stats[i].getAvePrepareTime() + "\t" + stats[i].getAveVerifyTime() + "\t" + stats[i].getAveVOSize() / 1024.0);
+				}
+				pw.close();
 			} else {
 				System.out.println("Input folder to query:");
 				String dir = in.nextLine();
 				if (!dir.endsWith("/")) dir = dir + "/";
 				System.out.println("Input file prefix to query:");
 				String prefix = in.nextLine();
-				Statistics[] stats = new Statistics[QueryGenerator.ratios.length];
-				PrintWriter pw = new PrintWriter(new File(dir + prefix + ".ans_" + index + "_" + PMAC.noPhi));
-				for (int i = QueryGenerator.ratios.length - 1; i >= 0; i --) {
-					String fileName = dir + prefix + ".t_" + Math.sqrt(QueryGenerator.ratios[i]);
+				System.out.println("Input query type (t/p):");
+				String type = in.nextLine();
+				Statistics[] stats = new Statistics[7];
+				PrintWriter pw = new PrintWriter(new File(dir + prefix + ".ans_" + index + "_ratio_" + type));
+				for (int i = 0; i < 7; i ++) {
+					String fileName = dir + prefix + "." + type + "_" + i;
 					Scanner fin = new Scanner(new File(fileName)); int num = Integer.parseInt(fin.nextLine());
 					stats[i] = new Statistics();
 					for (int j = 0; j < num; j ++) {
@@ -134,6 +159,7 @@ public class TrajectorySimulator extends Simulator {
 			System.out.println("(a) user input");
 			System.out.println("(b) file input");
 			System.out.println("(c) folder input");
+			System.out.println("(d) ratio test");
 		} else if (o == 1){
 			System.out.println("(a) build index\n(b) load index");
 		}
@@ -145,7 +171,7 @@ public class TrajectorySimulator extends Simulator {
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		Generator generator = new Generator("./database/tra_test.keys");
+		Generator generator = new Generator("./database/keys");
 		Prover proverX = new Prover();
 		Prover proverY = new Prover();
 		Verifier verifierX = new Verifier();

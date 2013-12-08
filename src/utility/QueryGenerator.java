@@ -53,7 +53,7 @@ public class QueryGenerator {
 					j ++;
 				}
 				if (j < num && dataxs[j].time - dataxs[i].time > range) {
-					datas[0].add(new Query("0", "0", "0", "0", i, j));
+					datas[0].add(new Query("0", "0", "0", "0", i, j, -1, -1));
 				}
 			}
 			generateQuery(datas, 0);
@@ -115,7 +115,7 @@ public class QueryGenerator {
 				pw.println(times * inc);
 				pw2.println(times * inc);
 				for (int j = 0; j < times; j ++) {
-					Query query = getRandom(random, num, range);
+					Query query = getRandomTime(random, num, range);
 					for (int k = 0; k < inc; k ++) {
 						String prex = getPreString(query.prex, k), prey = getPreString(query.prey, k); 
 						String prex_enc = getPreString(query.prex_enc, k), prey_enc = getPreString(query.prey_enc, k);
@@ -136,15 +136,265 @@ public class QueryGenerator {
 		}
 	}
 	
+	public static void queryVariedPre(String fileName) {
+		try {
+			Scanner in = new Scanner(new File("./dataset/" + fileName + ".txt_x")); int num = Integer.parseInt(in.nextLine());
+			dataxs = new Data[num];
+			for (int i = 0; i < num; i ++) {
+				String[] tks = in.nextLine().split("\t");
+				dataxs[i] = new Data(tks[0], null, Integer.parseInt(tks[1]));
+			}
+			in.close();
+			in = new Scanner(new File("./dataset/" + fileName + ".txt_y")); num = Integer.parseInt(in.nextLine());
+			datays = new Data[num];
+			for (int i = 0; i < num; i ++) {
+				String[] tks = in.nextLine().split("\t");
+				datays[i] = new Data(tks[0], null, Integer.parseInt(tks[1]));
+			} 
+			in.close();
+			in = new Scanner(new File("./dataset/" + fileName + ".txt.enc_x")); num = Integer.parseInt(in.nextLine());
+			for (int i = 0; i < num; i ++) {
+				String[] tks = in.nextLine().split("\t");
+				dataxs[i].prex_enc = tks[0];
+			} 
+			in.close();
+			in = new Scanner(new File("./dataset/" + fileName + ".txt.enc_y")); num = Integer.parseInt(in.nextLine());
+			for (int i = 0; i < num; i ++) {
+				String[] tks = in.nextLine().split("\t");
+				datays[i].prex_enc = tks[0];
+			} 
+			in.close();
+			
+			int times = 100, inc = 3;
+			for (int i = 0; i < 7; i ++){
+				Random random = new Random();
+				PrintWriter pw = new PrintWriter(new File("./query/" + fileName + ".p_" + Math.sqrt(ratios[i])));
+				PrintWriter pw2 = new PrintWriter(new File("./query/" + fileName + "_enc.p_" + Math.sqrt(ratios[i])));
+				int range = (int) (160 * Math.sqrt(ratios[i]));
+				System.out.println(range);
+				pw.println(times * inc);
+				pw2.println(times * inc);
+				for (int j = 0; j < times; j ++) {
+					Query query = getRandomPre(random, num, range);
+					for (int k = 0; k < inc; k ++) {
+						String prex = query.prex, prey = query.prey; 
+						String prex_enc = query.prex_enc, prey_enc = query.prey_enc;
+						int [] bounds = getTimeRange(query.ol, query.or, query.l, query.r, k, random);
+						System.out.println(prex + " " + prey + " " + bounds[0] + " " + bounds[1]);
+						System.out.println(prex_enc + " " + prey_enc + " " + bounds[0] + " " + bounds[1]);
+						pw.println(prex + " " + prey + " " + bounds[0] + " " + bounds[1]);
+						pw2.println(prex_enc + " " + prey_enc + " " + bounds[0] + " " + bounds[1]);
+					}
+				}
+				pw.close();
+				pw2.close();
+			}
+			
+//			System.out.println(range);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public static void getRatioVariedTime(String fileName) {
+		try {
+			Scanner in = new Scanner(new File("./dataset/" + fileName + ".txt_x")); int num = Integer.parseInt(in.nextLine());
+			dataxs = new Data[num];
+			for (int i = 0; i < num; i ++) {
+				String[] tks = in.nextLine().split("\t");
+				dataxs[i] = new Data(tks[0], null, Integer.parseInt(tks[1]));
+			}
+			in.close();
+			in = new Scanner(new File("./dataset/" + fileName + ".txt_y")); num = Integer.parseInt(in.nextLine());
+			datays = new Data[num];
+			for (int i = 0; i < num; i ++) {
+				String[] tks = in.nextLine().split("\t");
+				datays[i] = new Data(tks[0], null, Integer.parseInt(tks[1]));
+			} 
+			in.close();
+			in = new Scanner(new File("./dataset/" + fileName + ".txt.enc_x")); num = Integer.parseInt(in.nextLine());
+			for (int i = 0; i < num; i ++) {
+				String[] tks = in.nextLine().split("\t");
+				dataxs[i].prex_enc = tks[0];
+			} 
+			in.close();
+			in = new Scanner(new File("./dataset/" + fileName + ".txt.enc_y")); num = Integer.parseInt(in.nextLine());
+			for (int i = 0; i < num; i ++) {
+				String[] tks = in.nextLine().split("\t");
+				datays[i].prex_enc = tks[0];
+			} 
+			in.close();
+			
+			int times = 100, inc = 7;
+			for (int k = 0; k < inc; k ++) {
+				Random random = new Random();
+				PrintWriter pw = new PrintWriter(new File("./query/" + fileName + ".t_" + k));
+				PrintWriter pw2 = new PrintWriter(new File("./query/" + fileName + "_enc.t_" + k));
+				pw.println(times);
+				pw2.println(times);
+				for (int j = 0; j < times; j ++) {
+					for (int i = 0; i < 1; i ++){
+						int range = (int) ((dataxs[num - 1].time - dataxs[0].time) * Math.sqrt(ratios[6]));
+						Query query = getRandomTime(random, num, range);
+						System.out.println(range);
+						String prex = getPreString(query.prex, k), prey = getPreString(query.prey, k); 
+						String prex_enc = getPreString(query.prex_enc, k), prey_enc = getPreString(query.prey_enc, k);
+						System.out.println(prex + " " + prey + " " + query.l + " " + query.r);
+						System.out.println(prex_enc + " " + prey_enc + " " + query.l + " " + query.r);
+						pw.println(prex + " " + prey + " " + query.l + " " + query.r);
+						pw2.println(prex_enc + " " + prey_enc + " " + query.l + " " + query.r);
+					}
+				}
+				pw.close();
+				pw2.close();
+			}
+			
+//			System.out.println(range);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	public static void getRatioVariedPre(String fileName) {
+		try {
+			Scanner in = new Scanner(new File("./dataset/" + fileName + ".txt_x")); int num = Integer.parseInt(in.nextLine());
+			dataxs = new Data[num];
+			for (int i = 0; i < num; i ++) {
+				String[] tks = in.nextLine().split("\t");
+				dataxs[i] = new Data(tks[0], null, Integer.parseInt(tks[1]));
+			}
+			in.close();
+			in = new Scanner(new File("./dataset/" + fileName + ".txt_y")); num = Integer.parseInt(in.nextLine());
+			datays = new Data[num];
+			for (int i = 0; i < num; i ++) {
+				String[] tks = in.nextLine().split("\t");
+				datays[i] = new Data(tks[0], null, Integer.parseInt(tks[1]));
+			} 
+			in.close();
+			in = new Scanner(new File("./dataset/" + fileName + ".txt.enc_x")); num = Integer.parseInt(in.nextLine());
+			for (int i = 0; i < num; i ++) {
+				String[] tks = in.nextLine().split("\t");
+				dataxs[i].prex_enc = tks[0];
+			} 
+			in.close();
+			in = new Scanner(new File("./dataset/" + fileName + ".txt.enc_y")); num = Integer.parseInt(in.nextLine());
+			for (int i = 0; i < num; i ++) {
+				String[] tks = in.nextLine().split("\t");
+				datays[i].prex_enc = tks[0];
+			} 
+			in.close();
+			
+			int times = 100, inc = 7;
+			for (int k = 0; k < inc; k ++) {
+				Random random = new Random();
+				PrintWriter pw = new PrintWriter(new File("./query/" + fileName + ".p_" + k));
+				PrintWriter pw2 = new PrintWriter(new File("./query/" + fileName + "_enc.p_" + k));
+				pw.println(times);
+				pw2.println(times);
+				for (int j = 0; j < times; j ++) {
+					for (int i = 0; i < 1; i ++){
+						int range = (int) (80 * Math.sqrt(ratios[0]));
+						Query query = getRandomPre(random, num, range);
+						System.out.println(range);
+						String prex = query.prex, prey = query.prey; 
+						String prex_enc = query.prex_enc, prey_enc = query.prey_enc;
+						int [] bounds = getTimeRange(query.ol, query.or, query.l, query.r, k, random);
+						System.out.println(prex + " " + prey + " " + bounds[0] + " " + bounds[1]);
+						System.out.println(prex_enc + " " + prey_enc + " " + bounds[0] + " " + bounds[1]);
+						pw.println(prex + " " + prey + " " + bounds[0] + " " + bounds[1]);
+						pw2.println(prex_enc + " " + prey_enc + " " + bounds[0] + " " + bounds[1]);
+					}
+				}
+				pw.close();
+				pw2.close();
+			}
+			
+//			System.out.println(range);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public static int[] getTimeRange (int ol, int or, int l, int r, int k, Random random) {
+		int range = (r - l) >> k, times = 100;
+		while (times -- > 0) {
+			int start = random.nextInt(or - ol + 1) + ol;
+			int end = start;
+			while( end <= or) {
+				if ((dataxs[end].time - dataxs[start].time) >= range) {
+					return new int[] {dataxs[start].time, dataxs[end].time};
+				}
+				end ++;
+			}
+		}
+		if (k != 0) System.out.println("no found");
+		return new int[]{l, r};
+	}
+	
 	public static String getPreString(String pre, int k) {
-		if (pre.length() > k + 1) {
-			return pre.substring(0, pre.length() - k - 1);
+		if (pre.length() > k) {
+			return pre.substring(0, pre.length() - k); // -k
 		} else {
 			return pre.substring(0, 1);
 		}
 	} 
 	
-	public static Query getRandom(Random random, int num, int range) {
+	public static Query getRandomPre(Random random, int num, int range) {
+		int times = 100;
+		while (true) {
+			int start = random.nextInt(num);
+			int end = start;
+			String prex = dataxs[end].prex;
+			String prey = datays[end].prex;
+			while( end < num) {
+				if (DataIO.commonPrefix(prex, dataxs[end].prex).length() < 32 - range ||
+						DataIO.commonPrefix(prey, datays[end].prex).length() < 32 - range) {
+					-- end;
+					String[] tra = new String[end - start + 1];
+					for (int i = start; i <= end; i ++) {
+						tra[i - start] = dataxs[i].prex_enc; 
+					}
+					String prex_enc = DataIO.commonPrefix(tra, 0, end - start);
+					tra = new String[end - start + 1];
+					for (int i = start; i <= end; i ++) {
+						tra[i - start] = datays[i].prex_enc; 
+					}
+					String prey_enc = DataIO.commonPrefix(tra, 0, end - start);
+					return new Query (prex, prey, prex_enc, prey_enc, dataxs[start].time, dataxs[end].time, start, end);
+				}
+				prex = DataIO.commonPrefix(prex, dataxs[end].prex);
+				prey = DataIO.commonPrefix(prey, datays[end].prex);
+				end ++;
+			}
+			if (times -- == 0) {
+				String[] tra = new String[num];
+				for (int i = 0; i < num; i ++) {
+					tra[i] = dataxs[i].prex; 
+				}
+				prex = DataIO.commonPrefix(tra, 0, num - 1);
+				tra = new String[num];
+				for (int i = 0; i < num; i ++) {
+					tra[i] = datays[i].prex; 
+				}
+				prey = DataIO.commonPrefix(tra, 0, num - 1);
+				tra = new String[num];
+				for (int i = 0; i < num; i ++) {
+					tra[i] = dataxs[i].prex_enc; 
+				}
+				String prex_enc = DataIO.commonPrefix(tra, 0, num - 1);
+				tra = new String[num];
+				for (int i = 0; i < num; i ++) {
+					tra[i] = datays[i].prex_enc; 
+				}
+				String prey_enc = DataIO.commonPrefix(tra, 0, num - 1);
+				return new Query (prex, prey, prex_enc, prey_enc, dataxs[0].time, dataxs[num - 1].time, 0, num - 1);
+			}
+		}
+	}
+	
+	public static Query getRandomTime(Random random, int num, int range) {
 		while (true) {
 			int start = random.nextInt(num);
 			int end = start;
@@ -170,7 +420,7 @@ public class QueryGenerator {
 						tra[i - start] = datays[i].prex_enc; 
 					}
 					String prey_enc = DataIO.commonPrefix(tra, 0, end - start);
-					return new Query (prex, prey, prex_enc, prey_enc, dataxs[start].time, dataxs[end].time);
+					return new Query (prex, prey, prex_enc, prey_enc, dataxs[start].time, dataxs[end].time, start, end);
 				}
 				end ++;
 			}
@@ -206,7 +456,7 @@ public class QueryGenerator {
 			if (((32-cprex.length()) * (32-cprey.length()) / (256.0*256.0)) <= ratios[level]) {
 //				System.out.println(cprex.length() + ", " + cprey.length());
 				String[] pre_ext = extendPre(cprex, cprey, ratios[level]); 
-				datas[level + 1].add(new Query(pre_ext[0], pre_ext[1], null, null, l, r));
+				datas[level + 1].add(new Query(pre_ext[0], pre_ext[1], null, null, l, r, -1, -1));
 			}
 		}
 		generateQuery(datas, level + 1);
@@ -239,9 +489,18 @@ public class QueryGenerator {
 //		queryWithFixedTime("1000.txt", Math.sqrt(0.01));
 //		queryWithFixedTime("1000.txt", Math.sqrt(0.02));
 //		queryWithFixedTime("./dataset/10000.txt", Math.sqrt(0.0004));
-		queryVariedTime("100000");
+//		queryVariedTime("100000");
 //		queryVariedTime("10000");
 //		queryVariedTime("1000");
+//		queryVariedPre("100000");
+//		queryVariedPre("10000");
+//		queryVariedPre("1000");
+//		getRatioVariedPre("100000");
+		getRatioVariedPre("10000");
+//		getRatioVariedPre("1000");
+//		getRatioVariedTime("100000");
+		getRatioVariedTime("10000");
+//		getRatioVariedTime("1000");
 	}
 }
 
@@ -249,7 +508,8 @@ class Query {
 	public String prex, prey;
 	public String prex_enc, prey_enc;
 	public int l, r;
-	public Query(String prex, String prey, String prex_enc, String prey_enc, int l, int r) {
+	public int ol, or;
+	public Query(String prex, String prey, String prex_enc, String prey_enc, int l, int r, int ol, int or) {
 		super();
 		this.prex = prex;
 		this.prey = prey;
@@ -257,6 +517,8 @@ class Query {
 		this.prey_enc = prey_enc;
 		this.l = l;
 		this.r = r;
+		this.ol = ol;
+		this.or = or;
 	}
 	
 }

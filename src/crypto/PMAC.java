@@ -124,6 +124,8 @@ public class PMAC implements RW{
 				Pix = Pix.multiply(mappingTable[i][x.charAt(i) - '0']).mod(phi_n);
 			}
 		}
+//		System.out.println(Pix);
+//		System.out.println(Pix.mod(phi_n));
 //		Pix = Pix.multiply(r).mod(phi_p);
 		return Pix;
 	}
@@ -261,11 +263,7 @@ public class PMAC implements RW{
 	 */
 	public BigInteger getPsiTime(int t1, int t2, int t3, int t4) {
 //		return BigInteger.ONE;
-		if (noPhi) {
-			return getPsiTime(t2).subtract(getPsiTime(t1)).add(getPsiTime(t3)).subtract(getPsiTime(t4));
-		} else {
-			return getPsiTime(t2).subtract(getPsiTime(t1)).add(getPsiTime(t3)).subtract(getPsiTime(t4)).mod(phi_n);
-		}
+		return getPsiTime(t2).subtract(getPsiTime(t1)).add(getPsiTime(t3)).subtract(getPsiTime(t4));
 	}
 
 	/**
@@ -278,17 +276,8 @@ public class PMAC implements RW{
 	 */
 	public BigInteger getPsiObject(Object o1, Object o2, Object o3, Object o4) {
 //		return BigInteger.ONE;
-		if (noPhi) {
-			System.out.println(getPsiObject(o2).subtract(getPsiObject(o1)).
-			add(getPsiObject(o3)).subtract(getPsiObject(o4)));
-			System.out.println(getPsiObject(o2).subtract(getPsiObject(o1)).
-					add(getPsiObject(o3)).subtract(getPsiObject(o4)).mod(phi_n));
-			return getPsiObject(o2).subtract(getPsiObject(o1)).
-					add(getPsiObject(o3)).subtract(getPsiObject(o4));
-		} else {
-			return getPsiObject(o2).subtract(getPsiObject(o1)).
-				add(getPsiObject(o3)).subtract(getPsiObject(o4)).mod(phi_n);
-		}
+		return getPsiObject(o2).subtract(getPsiObject(o1)).
+				add(getPsiObject(o3)).subtract(getPsiObject(o4));
 	}
 	
 	/**
@@ -386,7 +375,7 @@ public class PMAC implements RW{
 			return new BigInteger[]{g.modPow(exp, n), r};
 		} else {
 			BigInteger exp = generatePix(x).multiply(r).mod(phi_n);
-			exp = exp.add(getPsiTime(t1, t2, t2, t3)).mod(phi_n);
+			exp = exp.add(getPsiTime(t1, t2, t2, t3));
 			exp = exp.multiply(d).mod(phi_n);
 			return new BigInteger[]{g.modPow(exp, n), r};
 		}
@@ -410,7 +399,7 @@ public class PMAC implements RW{
 			return new BigInteger[]{g.modPow(exp, n), r};
 		} else {
 			BigInteger exp = generatePix(x).multiply(r).mod(phi_n);
-			exp = exp.add(getPsiObject(o1, o2, o2, o3)).mod(phi_n);
+			exp = exp.add(getPsiObject(o1, o2, o2, o3));
 			exp = exp.multiply(d).mod(phi_n);
 			return new BigInteger[]{g.modPow(exp, n), r};
 		}
