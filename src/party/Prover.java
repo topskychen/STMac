@@ -62,7 +62,10 @@ public class Prover extends PMAC{
 		// TODO Auto-generated method stub
 		this.trajectory = trajectory;
 //		generator.generatePMAC(this.trajectory.getLocation(), -1, 0, 1);
+		Timer timer = new Timer(); timer.reset();
 		generator.generatePMAC(trajectory, start, end);
+		timer.stop();
+		System.out.println("Construction Time : " + timer.timeElapseinMs() + " ms");
 	}
 	
 	public void prepareTraPMAC(String traFileName, String traPMACFileName, Generator generator) throws IOException {

@@ -86,6 +86,25 @@ public class DataParser {
 		System.out.println(maxName + ", " + maxSize / 1000.0 + " KB");
 	}
 	
+	public static int countFilesWithSize(int size) {
+		String dirName = "./dataset/Geolife/Data/";
+		String maxName = ""; long minSize = Integer.MAX_VALUE;
+		int ans = 0, sum = 0;
+		for (int i = 0; i <= 181; i ++) {
+			File file = new File(dirName + String.format("%03d", i) + "/Trajectory");
+			for (String subName : file.list()) {
+//				System.out.println(subFile.getName() + ", " + file.length() + " B");
+				int lines = getLineCount(dirName + String.format("%03d", i) + "/Trajectory/" + subName) - 6;
+				if (lines > size) {
+					ans ++;
+					sum += lines;
+				}
+			}
+		}
+		System.out.println("ave: " + sum / ans);
+		return ans;
+	}
+	
 	public static Date[] getDate(String fileName) {
 		File file = new File(fileName);
 		ArrayList<Date> dates= new ArrayList<Date>();
@@ -212,10 +231,12 @@ public class DataParser {
 //		readTimeStamps("./dataset/Geolife/Data/010/Trajectory/20081219114010.plt");
 		
 		
-		drawTrajectory("./dataset/Geolife/Data/000/Trajectory/20090402060732.plt");
+//		drawTrajectory("./dataset/Geolife/Data/000/Trajectory/20090402060732.plt");
 //		generateTraWithTime("./dataset/Geolife/Data/000/Trajectory/20090402060732.plt", "./dataset/1000.txt");
 //		generateTraWithTime("./dataset/Geolife/Data/064/Trajectory/20080824001306.plt", "./dataset/10000.txt");
 //		generateTraWithTime("./dataset/Geolife/Data/010/Trajectory/20081219114010.plt", "./dataset/100000.txt");
+		
+		System.out.println(countFilesWithSize(990));
 	}
 
 }

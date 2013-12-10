@@ -114,11 +114,11 @@ public class GeneralSearchTree extends BinaryTree implements SearchIndex {
 	public int buildLeafNodes(Trajectory tra, BinaryTree[] nodes, PMAC pmac) {
 		int size = 0;
 		Gfunction[] gfs = new Gfunction[tra.length() + 2];
-		gfs[0] = new Gfunction(-1, 2, Constants.lowerBound, Constants.upperBound);
-		gfs[tra.length() + 1] = new Gfunction(1, 2, Constants.lowerBound, Constants.upperBound);
+		gfs[0] = new Gfunction(-1, Constants.GFunction, Constants.lowerBound, Constants.upperBound);
+		gfs[tra.length() + 1] = new Gfunction(1, Constants.GFunction, Constants.lowerBound, Constants.upperBound);
 		MyTask[] tasks = new MyTask[tra.length()];
 		for (int i = 1; i <= tra.length(); i ++) {
-			tasks[i - 1] = new MyTask(tra.getTimeStamp(i), 2);
+			tasks[i - 1] = new MyTask(tra.getTimeStamp(i), Constants.GFunction);
 //			gfs[i] = new Gfunction(tra.getTimeStamp(i), 2);
 		}
 		MultiThread multiThread = new MultiThread(tasks, Constants.ThreadNum); multiThread.run();

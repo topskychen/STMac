@@ -14,6 +14,7 @@ public class Constants {
 	public static int FileQuery = 2;
 	public static int lowerBound = -1;
 	public static int upperBound = 1 << 20;
+	public static int GFunction = 2;
 	/**
 	 * 
 	 */

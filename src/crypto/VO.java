@@ -18,6 +18,7 @@ import java.util.ArrayList;
 
 import IO.DataIO;
 import timer.Timer;
+import utility.Constants;
 import crypto.Gfunction;
 
 /**
@@ -321,7 +322,7 @@ public class VO {
 				if (isRight()) {
 					gf3 = Gfunction.getDigest(gfs[2]);
 					if (!Gfunction.verifyValueGreaterThan(gfs[2], query.getrBound())) {
-						Gfunction gf = new Gfunction(timeStamps[2], 2);
+						Gfunction gf = new Gfunction(timeStamps[2], Constants.GFunction);
 						byte[] tmp = gf.prepareValueGreaterThan(query.getrBound());
 						System.out.println();
 						System.out.println(DataIO.toHexFromBytes(gfs[2]));

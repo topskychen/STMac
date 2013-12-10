@@ -112,10 +112,12 @@ public class TrajectorySimulator extends Simulator {
 				String prefix = in.nextLine();
 				System.out.println("Input query type (t/p):");
 				String type = in.nextLine();
-				Statistics[] stats = new Statistics[QueryGenerator.ratios.length];
+				Statistics[] stats = new Statistics[QueryGenerator.ratios_t.length];
 				PrintWriter pw = new PrintWriter(new File(dir + prefix + ".ans_" + index + "_" + PMAC.noPhi + "_" + type));
-				for (int i = QueryGenerator.ratios.length - 1; i >= 0; i --) {
-					String fileName = dir + prefix + "." + type + "_" + Math.sqrt(QueryGenerator.ratios[i]);
+				for (int i = QueryGenerator.ratios_t.length - 1; i >= 0; i --) {
+					String fileName = dir + prefix + "." + type + "_";
+					if (type.equals("t"))fileName += QueryGenerator.ratios_t[i];
+					else fileName += QueryGenerator.ratios_q[i];
 					Scanner fin = new Scanner(new File(fileName)); int num = Integer.parseInt(fin.nextLine());
 					stats[i] = new Statistics();
 					for (int j = 0; j < num; j ++) {
@@ -137,8 +139,8 @@ public class TrajectorySimulator extends Simulator {
 				String type = in.nextLine();
 				Statistics[] stats = new Statistics[7];
 				PrintWriter pw = new PrintWriter(new File(dir + prefix + ".ans_" + index + "_ratio_" + type));
-				for (int i = 0; i < 7; i ++) {
-					String fileName = dir + prefix + "." + type + "_" + i;
+				for (int i = 0; i < 5; i ++) {
+					String fileName = dir + prefix + "." + type + "_ratio_" + i;
 					Scanner fin = new Scanner(new File(fileName)); int num = Integer.parseInt(fin.nextLine());
 					stats[i] = new Statistics();
 					for (int j = 0; j < num; j ++) {
