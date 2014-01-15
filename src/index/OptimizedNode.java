@@ -1,10 +1,10 @@
 package index;
 
+import io.IO;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.PriorityQueue;
-
-import IO.DataIO;
 
 public class OptimizedNode {
 	String prex			= null;
@@ -34,7 +34,7 @@ public class OptimizedNode {
 		rightChild = right;
 		leftChild.setRightParent(this);
 		rightChild.setLeftParent(this);
-		prex = DataIO.commonPrefix(leftChild.getPrex(), rightChild.getPrex());
+		prex = IO.commonPrefix(leftChild.getPrex(), rightChild.getPrex());
 	}
 	
 	public void updateSize() {
@@ -125,16 +125,16 @@ public class OptimizedNode {
 	
 	public String toString(int level) {
 		StringBuffer sb  = new StringBuffer();
-		sb.append(DataIO.getIndent(level));
+		sb.append(IO.getIndent(level));
 		sb.append(prex + ", " + value + "\n");
 		if (leftChild != null) sb.append(leftChild.toString(level + 1));
 		else {
-			sb.append(DataIO.getIndent(level + 1));
+			sb.append(IO.getIndent(level + 1));
 			sb.append("null\n");
 		}
 		if (rightChild != null)sb.append(rightChild.toString(level + 1));
 		else {
-			sb.append(DataIO.getIndent(level + 1));
+			sb.append(IO.getIndent(level + 1));
 			sb.append("null\n");
 		}
 		return sb.toString();

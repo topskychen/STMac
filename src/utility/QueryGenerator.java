@@ -3,14 +3,14 @@
  */
 package utility;
 
+import io.IO;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
-
-import IO.DataIO;
 
 /**
  * @author chenqian
@@ -350,23 +350,23 @@ public class QueryGenerator {
 			String prex = dataxs[end].prex;
 			String prey = datays[end].prex;
 			while( end < num) {
-				if (DataIO.commonPrefix(prex, dataxs[end].prex).length() < range &&
-						DataIO.commonPrefix(prey, datays[end].prex).length() < range) {
+				if (IO.commonPrefix(prex, dataxs[end].prex).length() < range &&
+						IO.commonPrefix(prey, datays[end].prex).length() < range) {
 					-- end;
 					String[] tra = new String[end - start + 1];
 					for (int i = start; i <= end; i ++) {
 						tra[i - start] = dataxs[i].prex_enc; 
 					}
-					String prex_enc = DataIO.commonPrefix(tra, 0, end - start);
+					String prex_enc = IO.commonPrefix(tra, 0, end - start);
 					tra = new String[end - start + 1];
 					for (int i = start; i <= end; i ++) {
 						tra[i - start] = datays[i].prex_enc; 
 					}
-					String prey_enc = DataIO.commonPrefix(tra, 0, end - start);
+					String prey_enc = IO.commonPrefix(tra, 0, end - start);
 					return new Query (prex, prey, prex_enc, prey_enc, dataxs[start].time, dataxs[end].time, start, end);
 				}
-				prex = DataIO.commonPrefix(prex, dataxs[end].prex);
-				prey = DataIO.commonPrefix(prey, datays[end].prex);
+				prex = IO.commonPrefix(prex, dataxs[end].prex);
+				prey = IO.commonPrefix(prey, datays[end].prex);
 				end ++;
 			}
 			if (times -- == 0) {
@@ -374,22 +374,22 @@ public class QueryGenerator {
 				for (int i = 0; i < num; i ++) {
 					tra[i] = dataxs[i].prex; 
 				}
-				prex = DataIO.commonPrefix(tra, 0, num - 1);
+				prex = IO.commonPrefix(tra, 0, num - 1);
 				tra = new String[num];
 				for (int i = 0; i < num; i ++) {
 					tra[i] = datays[i].prex; 
 				}
-				prey = DataIO.commonPrefix(tra, 0, num - 1);
+				prey = IO.commonPrefix(tra, 0, num - 1);
 				tra = new String[num];
 				for (int i = 0; i < num; i ++) {
 					tra[i] = dataxs[i].prex_enc; 
 				}
-				String prex_enc = DataIO.commonPrefix(tra, 0, num - 1);
+				String prex_enc = IO.commonPrefix(tra, 0, num - 1);
 				tra = new String[num];
 				for (int i = 0; i < num; i ++) {
 					tra[i] = datays[i].prex_enc; 
 				}
-				String prey_enc = DataIO.commonPrefix(tra, 0, num - 1);
+				String prey_enc = IO.commonPrefix(tra, 0, num - 1);
 				return new Query (prex, prey, prex_enc, prey_enc, dataxs[0].time, dataxs[num - 1].time, 0, num - 1);
 			}
 		}
@@ -411,22 +411,22 @@ public class QueryGenerator {
 					for (int i = start; i <= end; i ++) {
 						tra[i - start] = dataxs[i].prex; 
 					}
-					String prex = DataIO.commonPrefix(tra, 0, end - start);
+					String prex = IO.commonPrefix(tra, 0, end - start);
 					tra = new String[end - start + 1];
 					for (int i = start; i <= end; i ++) {
 						tra[i - start] = datays[i].prex; 
 					}
-					String prey = DataIO.commonPrefix(tra, 0, end - start);
+					String prey = IO.commonPrefix(tra, 0, end - start);
 					tra = new String[end - start + 1];
 					for (int i = start; i <= end; i ++) {
 						tra[i - start] = dataxs[i].prex_enc; 
 					}
-					String prex_enc = DataIO.commonPrefix(tra, 0, end - start);
+					String prex_enc = IO.commonPrefix(tra, 0, end - start);
 					tra = new String[end - start + 1];
 					for (int i = start; i <= end; i ++) {
 						tra[i - start] = datays[i].prex_enc; 
 					}
-					String prey_enc = DataIO.commonPrefix(tra, 0, end - start);
+					String prey_enc = IO.commonPrefix(tra, 0, end - start);
 					return new Query (prex, prey, prex_enc, prey_enc, dataxs[start].time, dataxs[end].time, start, end);
 				}
 				end ++;

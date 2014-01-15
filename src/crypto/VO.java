@@ -9,6 +9,7 @@ import index.GData;
 import index.Query;
 import index.SearchIndex;
 import index.Trajectory;
+import io.IO;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -16,7 +17,6 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 
-import IO.DataIO;
 import timer.Timer;
 import utility.Constants;
 import crypto.Gfunction;
@@ -325,9 +325,9 @@ public class VO {
 						Gfunction gf = new Gfunction(timeStamps[2], Constants.GFunction);
 						byte[] tmp = gf.prepareValueGreaterThan(query.getrBound());
 						System.out.println();
-						System.out.println(DataIO.toHexFromBytes(gfs[2]));
-						System.out.println(DataIO.toHexFromBytes(tmp));
-						System.out.println(DataIO.toHexFromBytes(gfs[2]).equals(DataIO.toHexFromBytes(tmp)));
+						System.out.println(IO.toHexFromBytes(gfs[2]));
+						System.out.println(IO.toHexFromBytes(tmp));
+						System.out.println(IO.toHexFromBytes(gfs[2]).equals(IO.toHexFromBytes(tmp)));
 						System.out.println("gf_R: " + timeStamps[2] + ", " + query.getrBound());
 						return false;
 					}
@@ -359,15 +359,15 @@ public class VO {
 			try {
 				ds.write(sigma.toByteArray());
 				ds.write(g_pi_su.toByteArray());
-				DataIO.writeIntArrays(ds, timeStamps);
+				IO.writeIntArrays(ds, timeStamps);
 				if (gfs != null) {
 					for (int i = 0; i < gfs.length; i ++) {
-						DataIO.writeBytes(ds, gfs[i]);
+						IO.writeBytes(ds, gfs[i]);
 					}
 				}
 				if (timeDigests != null) {
 					for (int i = 0; i < timeDigests.length; i ++) {
-						DataIO.writeBytes(ds, timeDigests[i]);
+						IO.writeBytes(ds, timeDigests[i]);
 					}
 				}
 				ds.flush();

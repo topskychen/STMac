@@ -3,6 +3,8 @@
  */
 package index;
 
+import io.IO;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -11,7 +13,6 @@ import java.io.IOException;
 import java.math.BigInteger;
 
 import crypto.PMAC;
-import IO.DataIO;
 
 /**
  * @author chenqian
@@ -61,7 +62,7 @@ public class BData extends Data {
 			g_pi_sus[i] = ((BData) data[i]).g_pi_su;
 			sigma = sigma.multiply(((BData) data[i]).sigma).mod(pmac.n);
 		}
-		prex = DataIO.commonPrefix(tra, 0, slots - 1);
+		prex = IO.commonPrefix(tra, 0, slots - 1);
 		g_pi_su = pmac.increTraGPiSu(tra, g_pi_sus, 0, slots - 1, prex.length());
 		t1 = ((BData) data[0]).getT1();
 		t2 = ((BData) data[0]).getT2();
@@ -77,9 +78,9 @@ public class BData extends Data {
 	public void read(DataInputStream ds) {
 		// TODO Auto-generated method stub
 		try {
-			prex = DataIO.readString(ds);
-			g_pi_su = DataIO.readBigInteger(ds);
-			sigma = DataIO.readBigInteger(ds);
+			prex = IO.readString(ds);
+			g_pi_su = IO.readBigInteger(ds);
+			sigma = IO.readBigInteger(ds);
 			t1 = ds.readInt();
 			t2 = ds.readInt();
 			t3 = ds.readInt();
@@ -97,9 +98,9 @@ public class BData extends Data {
 	public void write(DataOutputStream ds) {
 		// TODO Auto-generated method stub
 		try {
-			DataIO.writeString(ds, prex);
-			DataIO.writeBigInteger(ds, g_pi_su);
-			DataIO.writeBigInteger(ds, sigma);
+			IO.writeString(ds, prex);
+			IO.writeBigInteger(ds, g_pi_su);
+			IO.writeBigInteger(ds, sigma);
 			ds.writeInt(t1);
 			ds.writeInt(t2);
 			ds.writeInt(t3);
@@ -108,28 +109,6 @@ public class BData extends Data {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
-
-	/* (non-Javadoc)
-	 * @see IO.RW#loadBytes(byte[])
-	 */
-	@Override
-	public void loadBytes(byte[] data) {
-		// TODO Auto-generated method stub
-		DataInputStream ds = new DataInputStream(new ByteArrayInputStream(data));
-		read(ds);
-	}
-
-	/* (non-Javadoc)
-	 * @see IO.RW#toBytes()
-	 */
-	@Override
-	public byte[] toBytes() {
-		// TODO Auto-generated method stub
-		ByteArrayOutputStream bs = new ByteArrayOutputStream();
-		DataOutputStream ds = new DataOutputStream(bs);
-		write(ds);
-		return bs.toByteArray();
 	}
 
 	/* (non-Javadoc)

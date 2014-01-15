@@ -3,6 +3,8 @@
  */
 package index;
 
+import io.IO;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -12,7 +14,6 @@ import java.io.ObjectInputStream.GetField;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 
-import IO.DataIO;
 import crypto.Gfunction;
 import crypto.Hasher;
 import crypto.PMAC;
@@ -78,7 +79,7 @@ public class GData extends BData{
 			g_pi_sus[i] = ((GData) data[i]).getG_pi_su();
 			this.sigma = this.sigma.multiply(((GData) data[i]).getSigma()).mod(pmac.n);
 		}
-		this.prex = DataIO.commonPrefix(tra, 0, slots - 1);
+		this.prex = IO.commonPrefix(tra, 0, slots - 1);
 		this.g_pi_su = pmac.increTraGPiSu(tra, g_pi_sus, 0, slots - 1, getPrex().length());
 		this.t1 = ((GData) data[0]).getT1();
 		this.t2 = ((GData) data[0]).getT2();
@@ -107,8 +108,8 @@ public class GData extends BData{
 			gf2 = new Gfunction(); gf2.read(ds);
 			gf3 = gf2;
 		}
-		gf1 = DataIO.readBytes(ds);
-		gf4 = DataIO.readBytes(ds);
+		gf1 = IO.readBytes(ds);
+		gf4 = IO.readBytes(ds);
 	}
 
 	/* (non-Javadoc)
@@ -122,8 +123,8 @@ public class GData extends BData{
 			gf2.write(ds);
 		}
 //		System.out.println(gf1.length);
-		DataIO.writeBytes(ds, gf1);
-		DataIO.writeBytes(ds, gf4);
+		IO.writeBytes(ds, gf1);
+		IO.writeBytes(ds, gf4);
 	}
 	
 	public Gfunction getGf2() {

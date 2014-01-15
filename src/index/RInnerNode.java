@@ -3,15 +3,15 @@
  */
 package index;
 
+import io.IO;
+import io.RW;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
-
-import IO.DataIO;
-import IO.RW;
 
 /**
  * @author chenqian
@@ -38,9 +38,9 @@ public class RInnerNode implements RW {
 	public void read(DataInputStream ds) {
 		// TODO Auto-generated method stub
 		try {
-			prex = DataIO.readString(ds);
-			g_pi_su = DataIO.readBigInteger(ds);
-			sigma = DataIO.readBigInteger(ds);
+			prex = IO.readString(ds);
+			g_pi_su = IO.readBigInteger(ds);
+			sigma = IO.readBigInteger(ds);
 			lb = ds.readInt();
 			rb = ds.readInt();
 		} catch (IOException e) {
@@ -56,9 +56,9 @@ public class RInnerNode implements RW {
 	public void write(DataOutputStream ds) {
 		// TODO Auto-generated method stub
 		try {
-			DataIO.writeString(ds, prex);
-			DataIO.writeBigInteger(ds, g_pi_su);
-			DataIO.writeBigInteger(ds, sigma);
+			IO.writeString(ds, prex);
+			IO.writeBigInteger(ds, g_pi_su);
+			IO.writeBigInteger(ds, sigma);
 			ds.writeInt(lb);
 			ds.writeInt(rb);
 		} catch (IOException e) {
@@ -67,27 +67,6 @@ public class RInnerNode implements RW {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see IO.RW#loadBytes(byte[])
-	 */
-	@Override
-	public void loadBytes(byte[] data) {
-		// TODO Auto-generated method stub
-		DataInputStream ds = new DataInputStream(new ByteArrayInputStream(data));
-		read(ds);
-	}
-
-	/* (non-Javadoc)
-	 * @see IO.RW#toBytes()
-	 */
-	@Override
-	public byte[] toBytes() {
-		// TODO Auto-generated method stub
-		ByteArrayOutputStream bs = new ByteArrayOutputStream();
-		DataOutputStream ds = new DataOutputStream(bs);
-		write(ds);
-		return bs.toByteArray();
-	}
 
 	/* (non-Javadoc)
 	 * @see IO.RW#toString()

@@ -3,10 +3,10 @@
  */
 package index;
 
+import io.RW;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-
-import IO.RW;
 
 /**
  * @author chenqian
@@ -42,24 +42,6 @@ public class Data implements RW {
 	public void write(DataOutputStream ds) {
 		// TODO Auto-generated method stub
 
-	}
-
-	/* (non-Javadoc)
-	 * @see IO.RW#loadBytes(byte[])
-	 */
-	@Override
-	public void loadBytes(byte[] data) {
-		// TODO Auto-generated method stub
-
-	}
-
-	/* (non-Javadoc)
-	 * @see IO.RW#toBytes()
-	 */
-	@Override
-	public byte[] toBytes() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	/* (non-Javadoc)

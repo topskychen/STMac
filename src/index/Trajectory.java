@@ -3,6 +3,9 @@
  */
 package index;
 
+import io.IO;
+import io.RW;
+
 import java.awt.Container;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -16,8 +19,6 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Scanner;
 
-import IO.DataIO;
-import IO.RW;
 import crypto.Constants;
 import crypto.PMAC;
 
@@ -188,7 +189,7 @@ public class Trajectory implements RW{
 			int len = ds.readInt();
 			locations = new String[len];
 			for (int i = 1; i <= length(); i ++) {
-				locations[i] = DataIO.readString(ds);
+				locations[i] = IO.readString(ds);
 			}
 			timeStamps = new int[len + 1];
 			for (int i = 1; i <= length(); i ++) {
@@ -198,11 +199,11 @@ public class Trajectory implements RW{
 			timeStamps[len] = Integer.MAX_VALUE;
 			sigmas = new BigInteger[len];
 			for (int i = 1; i <= length(); i ++) {
-				sigmas[i] = DataIO.readBigInteger(ds);
+				sigmas[i] = IO.readBigInteger(ds);
 			} 
 			rs = new BigInteger[len];
 			for (int i = 1; i <= length(); i ++) {
-				rs[i] = DataIO.readBigInteger(ds);
+				rs[i] = IO.readBigInteger(ds);
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -217,16 +218,16 @@ public class Trajectory implements RW{
 		try {
 			ds.writeInt(locations.length);
 			for (int i = 1; i <= length(); i ++) {
-				DataIO.writeString(ds, locations[i]);
+				IO.writeString(ds, locations[i]);
 			}
 			for (int i = 1; i <= length(); i ++) {
 				ds.writeInt(timeStamps[i]);
 			}
 			for (int i = 1; i <= length(); i ++) {
-				DataIO.writeBigInteger(ds, sigmas[i]);
+				IO.writeBigInteger(ds, sigmas[i]);
 			}
 			for (int i = 1; i <= length(); i ++) {
-				DataIO.writeBigInteger(ds, rs[i]);
+				IO.writeBigInteger(ds, rs[i]);
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -234,21 +235,6 @@ public class Trajectory implements RW{
 		}
 	}
 
-	@Override
-	public void loadBytes(byte[] data) {
-		// TODO Auto-generated method stub
-		DataInputStream ds = new DataInputStream(new ByteArrayInputStream(data));
-		read(ds);
-	}
-
-	@Override
-	public byte[] toBytes() {
-		// TODO Auto-generated method stub
-		ByteArrayOutputStream bs = new ByteArrayOutputStream();
-		DataOutputStream ds = new DataOutputStream(bs);
-		write(ds);
-		return bs.toByteArray();
-	}
 	
 	/**
 	 * Prepare location and timeStamps from file.

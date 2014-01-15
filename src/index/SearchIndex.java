@@ -3,10 +3,11 @@
  */
 package index;
 
+import io.RW;
+
 import java.util.ArrayList;
 
 import crypto.PMAC;
-import IO.RW;
 
 /**
  * @author chenqian

@@ -1,6 +1,8 @@
 package crypto;
 
 import index.Trajectory;
+import io.IO;
+import io.RW;
 
 import java.math.*;
 import java.util.*;
@@ -8,8 +10,6 @@ import java.io.*;
 
 import multithread.MultiThread;
 import multithread.Task;
-import IO.DataIO;
-import IO.RW;
 
 /**
  * This program calculates the PMAC value of given string x.
@@ -511,7 +511,7 @@ public class PMAC implements RW{
 		key[1] = p;
 		key[2] = q;
 //		key[3] = r; 
-		key[4] = new BigInteger(DataIO.toHexFromBytes(sk), 16); 
+		key[4] = new BigInteger(IO.toHexFromBytes(sk), 16); 
 		key[5] = e;
 		key[6] = d;
 
@@ -526,7 +526,7 @@ public class PMAC implements RW{
 		sb.append("e: " + e + "\n");
 		sb.append("phi_n: " + phi_n + "\n");
 		sb.append("d: " + d + "\n");
-		sb.append("sk: " + DataIO.toHexFromBytes(sk) + "\n");
+		sb.append("sk: " + IO.toHexFromBytes(sk) + "\n");
 //		for (int i = 0; i < MVALUE; i ++) {
 //			for (int j = 0; j < CVALUE; j ++) {
 //				sb.append(mappingTable[i][j] + ", ");
@@ -558,7 +558,7 @@ public class PMAC implements RW{
 		BigInteger pi_prex = pmac.generatePix(prex);
 		System.out.println("The PMAC value is " + sigma);
 		System.out.println(pmac.verify(sigma, pmac.generatePMACbyPrex(g_pi_su, pi_prex, "0".getBytes(), "1".getBytes(), "2".getBytes())));
-		System.out.println(DataIO.toHexFromBytes("1".getBytes()));
+		System.out.println(IO.toHexFromBytes("1".getBytes()));
 		System.out.println(pmac.hashCode());
 		pmac = new PMAC("./database/pmac.keys");
 		System.out.println(pmac.hashCode());
@@ -567,16 +567,16 @@ public class PMAC implements RW{
 	@Override
 	public void read(DataInputStream ds){
 		// TODO Auto-generated method stub
-		n = DataIO.readBigInteger(ds);
-		g = DataIO.readBigInteger(ds);
-		e = DataIO.readBigInteger(ds);
-		phi_n = DataIO.readBigInteger(ds);
-		d = DataIO.readBigInteger(ds);
-		sk = DataIO.readBytes(ds);
+		n = IO.readBigInteger(ds);
+		g = IO.readBigInteger(ds);
+		e = IO.readBigInteger(ds);
+		phi_n = IO.readBigInteger(ds);
+		d = IO.readBigInteger(ds);
+		sk = IO.readBytes(ds);
 		mappingTable = new BigInteger[MVALUE][CVALUE];
 		for (int i = 0; i < MVALUE; i ++) {
 			for (int j = 0; j < CVALUE; j ++) {
-				mappingTable[i][j] = DataIO.readBigInteger(ds);
+				mappingTable[i][j] = IO.readBigInteger(ds);
 			}
 		}
 		try {
@@ -590,15 +590,15 @@ public class PMAC implements RW{
 	@Override
 	public void write(DataOutputStream ds) {
 		// TODO Auto-generated method stub
-		DataIO.writeBigInteger(ds, n);
-		DataIO.writeBigInteger(ds, g);
-		DataIO.writeBigInteger(ds, e);
-		DataIO.writeBigInteger(ds, phi_n);
-		DataIO.writeBigInteger(ds, d);
-		DataIO.writeBytes(ds, sk);
+		IO.writeBigInteger(ds, n);
+		IO.writeBigInteger(ds, g);
+		IO.writeBigInteger(ds, e);
+		IO.writeBigInteger(ds, phi_n);
+		IO.writeBigInteger(ds, d);
+		IO.writeBytes(ds, sk);
 		for (int i = 0; i < MVALUE; i ++) {
 			for (int j = 0; j < CVALUE; j ++) {
-				DataIO.writeBigInteger(ds, mappingTable[i][j]);
+				IO.writeBigInteger(ds, mappingTable[i][j]);
 			}
 		}
 		try {
@@ -607,22 +607,6 @@ public class PMAC implements RW{
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-	}
-
-	@Override
-	public void loadBytes(byte[] data) {
-		// TODO Auto-generated method stub
-		DataInputStream ds = new DataInputStream(new ByteArrayInputStream(data));
-		read(ds);
-	}
-
-	@Override
-	public byte[] toBytes() {
-		// TODO Auto-generated method stub
-		ByteArrayOutputStream bs = new ByteArrayOutputStream();
-		DataOutputStream ds = new DataOutputStream(bs);
-		write(ds);
-		return bs.toByteArray();
 	}
 
 	public int hashCode() {
