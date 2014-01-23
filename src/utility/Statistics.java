@@ -9,10 +9,10 @@ package utility;
  */
 public class Statistics {
 
-	double prepareTime = 0;
-	double verifyTime = 0;
-	double voSize = 0;
-	int num = 0;
+	double 	prepareTime 	= 0;
+	double 	verifyTime 		= 0;
+	double 	voSize 			= 0;
+	int 	num 			= 0;
 	
 	public void append(double prepareTime, double verifyTime, long voSize) {
 		this.prepareTime += prepareTime;

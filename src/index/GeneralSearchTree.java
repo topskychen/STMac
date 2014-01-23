@@ -20,7 +20,7 @@ import utility.Constants;
 import crypto.Gfunction;
 import crypto.PMAC;
 import memoryindex.BinaryTree;
-import memoryindex.IQueryStrategy;
+import memoryindex.IQueryStrategyBT;
 import multithread.MultiThread;
 import multithread.Task;
 
@@ -52,7 +52,7 @@ public class GeneralSearchTree extends BinaryTree implements SearchIndex {
 				new RangeQueryStrategy(query.getlBound(), 
 						query.getrBound(), 
 						query.getRange());
-		queryStrategy(rangeQueryStrategy);
+		queryStrategy(this, rangeQueryStrategy);
 		return rangeQueryStrategy.getResults();
 	}
 
@@ -188,7 +188,7 @@ public class GeneralSearchTree extends BinaryTree implements SearchIndex {
 		}
 	}
 	
-	class RangeQueryStrategy implements IQueryStrategy {
+	class RangeQueryStrategy implements IQueryStrategyBT {
 
 		private ArrayList<BinaryTree> toVisit = new ArrayList<BinaryTree>();
 		private ArrayList<Data> results = new ArrayList<Data>();

@@ -20,7 +20,7 @@ import java.util.ArrayList;
 
 import utility.Constants;
 import memoryindex.BinaryTree;
-import memoryindex.IQueryStrategy;
+import memoryindex.IQueryStrategyBT;
 import multithread.MultiThread;
 import multithread.Task;
 import crypto.PMAC;
@@ -58,7 +58,7 @@ public class BinarySearchTree extends BinaryTree implements SearchIndex {
 	public ArrayList<Data> rangeQuery(Query query) {
 		// TODO Auto-generated method stub
 		RangeQueryStrategy rangeQueryStrategy = new RangeQueryStrategy(query.getlBound(), query.getrBound(), query.getRange());
-		queryStrategy(rangeQueryStrategy);
+		queryStrategy(this, rangeQueryStrategy);
 		return rangeQueryStrategy.getResults();
 	}
 
@@ -169,7 +169,7 @@ public class BinarySearchTree extends BinaryTree implements SearchIndex {
 		}
 	}
 	
-	class RangeQueryStrategy implements IQueryStrategy {
+	class RangeQueryStrategy implements IQueryStrategyBT {
 
 		private ArrayList<BinaryTree> toVisit = new ArrayList<BinaryTree>();
 		private ArrayList<Data> results = new ArrayList<Data>();
